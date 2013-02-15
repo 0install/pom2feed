@@ -31,6 +31,23 @@
 		    <encoding>${project.build.sourceEncoding}</encoding>
 		</configuration>
 	    </plugin>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-plugin-plugin</artifactId>
+		<version>3.2</version>
+		<configuration>
+		    <!-- todo: add plugin descriptors. see: https://maven.apache.org/developers/mojo-api-specification.html -->
+		    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+		</configuration>
+		<executions>
+		    <execution>
+			<id>help-goal</id>
+			<goals>
+			    <goal>helpmojo</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
 	</plugins>
     </build>
 
