@@ -9,35 +9,22 @@ import javax.servlet.http.*;
  * Responds to HTTP requests and returns Zero Install feeds.
  */
 public class FeedServlet extends HttpServlet {
-    
+
     private final FeedProvider feedProvider = new FeedCache(new FeedGenerator());
-    
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getPathInfo().equals("/")) {
             respondWelcome(resp);
             return;
         }
-        
+
         String artifactPath = req.getPathInfo().substring(1);
-        if (validateArtifactPath(artifactPath)) {
+        if (ArtifactUtils.validatePath(artifactPath)) {
             respondXmlData(resp, feedProvider.getFeed(artifactPath));
         } else {
             respondError(resp);
         }
-    }
-
-    /**
-     * Checks that a string is a valid artifact path.
-     */
-    private boolean validateArtifactPath(String value) {
-        String[] parts = value.split("/");
-        for (String part : parts) {
-            if (!part.matches("[A-Za-z0-9_\\.-]+")) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
