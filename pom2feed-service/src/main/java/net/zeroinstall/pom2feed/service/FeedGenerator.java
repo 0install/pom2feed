@@ -6,7 +6,7 @@ package net.zeroinstall.pom2feed.service;
 public class FeedGenerator implements FeedProvider {
 
     @Override
-    public String getFeed(String[] artifactPath) {
+    public String getFeed(final String artifactPath) {
         // TODO: Implement feed generation
         return "<interface/>";
     }

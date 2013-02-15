@@ -12,5 +12,5 @@ public interface FeedProvider {
      * server (artifact group and id combined).
      * @return The serialized feed data.
      */
-    public String getFeed(String[] artifactPath);
+    String getFeed(String artifactPath);
 }

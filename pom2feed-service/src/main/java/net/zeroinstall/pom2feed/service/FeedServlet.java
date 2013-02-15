@@ -9,36 +9,41 @@ import javax.servlet.http.*;
  * Responds to HTTP requests and returns Zero Install feeds.
  */
 public class FeedServlet extends HttpServlet {
-
-    private final FeedProvider feedProvider;
-
-    public FeedServlet() {
-        this.feedProvider = new FeedCache(new FeedGenerator());
-    }
-
+    
+    private final FeedProvider feedProvider = new FeedCache(new FeedGenerator());
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getPathInfo().equals("/")) {
-            respondInfo(resp);
+            respondWelcome(resp);
             return;
         }
-        String[] artifactPath = req.getPathInfo().substring(1).split("/");
-        if (artifactPath.length == 0) {
-            repondError(resp);
-            return;
+        
+        String artifactPath = req.getPathInfo().substring(1);
+        if (validateArtifactPath(artifactPath)) {
+            respondXmlData(resp, feedProvider.getFeed(artifactPath));
+        } else {
+            respondError(resp);
         }
-        for (String segment : artifactPath) {
-            if (!segment.matches("[A-Za-z0-9_\\.-]+")) {
-                repondError(resp);
-                return;
-            }
-        }
-
-        String feed = feedProvider.getFeed(artifactPath);
-        respondXmlData(resp, feed);
     }
 
-    private void respondInfo(HttpServletResponse resp) throws IOException {
+    /**
+     * Checks that a string is a valid artifact path.
+     */
+    private boolean validateArtifactPath(String value) {
+        String[] parts = value.split("/");
+        for (String part : parts) {
+            if (!part.matches("[A-Za-z0-9_\\.-]+")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Responds with a human-readable welcocme page.
+     */
+    private void respondWelcome(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/html");
         PrintWriter out = resp.getWriter();
         out.write("<html><head><title>Maven Artifact Zero Install Feed Provider</title></head>");
@@ -51,12 +56,19 @@ public class FeedServlet extends HttpServlet {
         out.write("</html>");
     }
 
-    private void repondError(HttpServletResponse resp) throws IOException {
+    /**
+     * Responds with an error page.
+     */
+    private void respondError(HttpServletResponse resp) throws IOException {
         resp.sendError(400, "Not a valid Maven URI");
     }
 
+    /**
+     * Responds with XML data.
+     */
     private void respondXmlData(HttpServletResponse resp, String data) throws IOException {
-        resp.setContentType("text/xml");
+        resp.setContentType("application/xml");
+        resp.setCharacterEncoding("utf-8");
         resp.getWriter().write(data);
     }
 }
