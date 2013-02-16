@@ -1,13 +1,9 @@
 package net.zeroinstall.pom2feed.core;
 
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import java.net.URI;
 import net.zeroinstall.model.*;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.maven.model.*;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * Iterativley builds Zero Install feeds using data from Maven projects.
@@ -38,10 +34,10 @@ public class FeedBuilder {
      */
     public void addMetadata(Model model) {
         feed.addName(model.getName());
-        feed.addNewSummary().set(plainText(
+        feed.addNewSummary().setStringValue(
                 Strings.isNullOrEmpty(model.getDescription())
                 ? "Maven artifact"
-                : model.getDescription()));
+                : model.getDescription());
         if (!Strings.isNullOrEmpty(model.getUrl())) {
             feed.addHomepage(model.getUrl());
         }
@@ -98,14 +94,6 @@ public class FeedBuilder {
         }
 
         return impl;
-    }
-
-    private static XmlObject plainText(String value) {
-        try {
-            return XmlObject.Factory.parse(StringEscapeUtils.escapeXml(value));
-        } catch (XmlException ex) {
-            throw Throwables.propagate(ex);
-        }
     }
 
     private static String pom2feedVersion(String pomVersion) {

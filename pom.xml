@@ -35,7 +35,7 @@
         <dependency>
             <groupId>net.zeroinstall</groupId>
             <artifactId>zeroinstall-model</artifactId>
-            <version>1.14.2</version>
+            <version>1.15-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
