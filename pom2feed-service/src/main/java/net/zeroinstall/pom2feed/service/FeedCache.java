@@ -30,8 +30,7 @@ public class FeedCache implements FeedProvider {
         try {
             return cache.get(artifactPath);
         } catch (ExecutionException ex) {
-            Throwables.propagate(ex);
-            return null;
+            throw Throwables.propagate(ex);
         }
     }
 }
