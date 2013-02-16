@@ -10,11 +10,13 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * Builds Zero Install feeds using data from Maven projects.
+ * Iterativley builds Zero Install feeds using data from Maven projects.
  */
 public class FeedBuilder {
 
     private final URI pom2feedService;
+    private final InterfaceDocument document;
+    private final Feed feed;
 
     /**
      * Creates a new feed builder.
@@ -23,13 +25,18 @@ public class FeedBuilder {
      * provide dependencies.
      */
     public FeedBuilder(URI pom2feedService) {
+        this.document = InterfaceDocument.Factory.newInstance();
+        this.feed = document.addNewInterface();
         this.pom2feedService = pom2feedService;
     }
 
-    public InterfaceDocument generateFeed(Model model) throws XmlException {
-        InterfaceDocument document = InterfaceDocument.Factory.newInstance();
-        Feed feed = document.addNewInterface();
-
+    /**
+     * Fills the feed with project-wide metadata from a Maven model.
+     *
+     * @param model The Maven model to extract the metadata from. Should be from
+     * the latest version of the project.
+     */
+    public void addMetadata(Model model) {
         feed.addName(model.getName());
         feed.addNewSummary().set(plainText(
                 Strings.isNullOrEmpty(model.getDescription())
@@ -40,23 +47,45 @@ public class FeedBuilder {
         }
 
         // TODO: Convert more stuff
-
-        return document;
     }
 
-    public Implementation addLocalImplementation(Feed feed, Model model) {
-        Implementation impl = addImplementation(feed, model);
+    /**
+     * Adds a local-path implementation to the feed using version and dependency
+     * information from a Maven model.
+     *
+     * @param model The Maven model to extract the version and dependency
+     * information from.
+     * @return The implementation that was created and added to the feed.
+     */
+    public Implementation addLocalImplementation(Model model) {
+        Implementation impl = addImplementation(model);
         impl.setLocalPath(".");
         return impl;
     }
 
-    public Implementation addRemoteImplementation(Feed feed, Model model, URI jarUri) {
-        Implementation impl = addImplementation(feed, model);
+    /**
+     * Adds a "download single file" implementation to the feed using version
+     * and dependency information from a Maven model.
+     *
+     * @param model The Maven model to extract the version and dependency
+     * information from.
+     * @return The implementation that was created and added to the feed.
+     */
+    public Implementation addRemoteImplementation(Model model, URI jarUri) {
+        Implementation impl = addImplementation(model);
         // TODO: Add <file>
         return impl;
     }
 
-    private Implementation addImplementation(Feed feed, Model model) {
+    /**
+     * Adds an implementation to the feed using version and dependency
+     * information from a Maven model.
+     *
+     * @param model The Maven model to extract the version and dependency
+     * information from.
+     * @return The implementation that was created and added to the feed.
+     */
+    private Implementation addImplementation(Model model) {
         Implementation impl = feed.addNewImplementation();
         impl.setVersion(pom2feedVersion(model.getVersion()));
 
@@ -82,5 +111,14 @@ public class FeedBuilder {
     private static String pom2feedVersion(String pomVersion) {
         // TODO: Handle -snapshot, rc, etc.
         return pomVersion;
+    }
+
+    /**
+     * Returns the generated feed/interface.
+     *
+     * @return An XML representation of the feed/interface.
+     */
+    public InterfaceDocument getDocument() {
+        return document;
     }
 }
