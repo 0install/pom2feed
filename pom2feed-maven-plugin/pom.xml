@@ -41,6 +41,11 @@
 		</configuration>
 		<executions>
 		    <execution>
+			<goals>
+			    <goal>descriptor</goal>
+			</goals>
+		    </execution>
+		    <execution>
 			<id>help-goal</id>
 			<goals>
 			    <goal>helpmojo</goal>
