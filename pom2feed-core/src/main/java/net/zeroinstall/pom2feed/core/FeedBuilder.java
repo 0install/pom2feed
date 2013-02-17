@@ -11,8 +11,8 @@ import org.apache.maven.model.*;
 public class FeedBuilder {
 
     private final URI pom2feedService;
-    private final InterfaceDocument document;
-    private final Feed feed;
+    private final InterfaceDocument document = InterfaceDocument.Factory.newInstance();
+    private final Feed feed = document.addNewInterface();
 
     /**
      * Creates a new feed builder.
@@ -21,9 +21,16 @@ public class FeedBuilder {
      * provide dependencies.
      */
     public FeedBuilder(URI pom2feedService) {
-        this.document = InterfaceDocument.Factory.newInstance();
-        this.feed = document.addNewInterface();
         this.pom2feedService = pom2feedService;
+    }
+
+    /**
+     * Returns the generated feed/interface.
+     *
+     * @return An XML representation of the feed/interface.
+     */
+    public InterfaceDocument getDocument() {
+        return document;
     }
 
     /**
@@ -34,15 +41,13 @@ public class FeedBuilder {
      */
     public void addMetadata(Model model) {
         feed.addName(model.getName());
-        feed.addNewSummary().setStringValue(
-                Strings.isNullOrEmpty(model.getDescription())
-                ? "Maven artifact"
-                : model.getDescription());
+        feed.addNewSummary().setStringValue("Auto-generated feed for " + model.getGroupId() + "." + model.getArtifactId());
+        if (!Strings.isNullOrEmpty(model.getDescription())) {
+            feed.addNewDescription().setStringValue(model.getDescription());
+        }
         if (!Strings.isNullOrEmpty(model.getUrl())) {
             feed.addHomepage(model.getUrl());
         }
-
-        // TODO: Convert more stuff
     }
 
     /**
@@ -69,7 +74,15 @@ public class FeedBuilder {
      */
     public Implementation addRemoteImplementation(Model model, URI jarUri) {
         Implementation impl = addImplementation(model);
+
+        String hash = "abc";
+        long size = 123;
+        String fileName = model.getBuild().getFinalName() + "." + model.getPackaging();
+        ManifestDigest digest = impl.addNewManifestDigest();
+        digest.setSha1New(FeedUtils.getSha1ManifestDigest(hash, size, fileName));
+
         // TODO: Add <file>
+
         return impl;
     }
 
@@ -83,30 +96,24 @@ public class FeedBuilder {
      */
     private Implementation addImplementation(Model model) {
         Implementation impl = feed.addNewImplementation();
-        impl.setVersion(pom2feedVersion(model.getVersion()));
+        impl.setVersion(FeedUtils.pom2feedVersion(model.getVersion()));
+
+        if (!model.getLicenses().isEmpty()) {
+            impl.setLicense(model.getLicenses().get(0).getName());
+        }
+
+        Command command = impl.addNewCommand();
+        command.setName("run");
+        command.setPath(model.getBuild().getFinalName() + "." + model.getPackaging());
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
             net.zeroinstall.model.Dependency ziDep = impl.addNewRequires();
             ziDep.setInterface(pom2feedService.toString()
                     // TODO: Transform to proper feed URI
                     + mavenDep.getGroupId() + "/" + mavenDep.getArtifactId());
-            ziDep.setVersion(pom2feedVersion(mavenDep.getVersion()));
+            ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
         }
 
         return impl;
-    }
-
-    private static String pom2feedVersion(String pomVersion) {
-        // TODO: Handle -snapshot, rc, etc.
-        return pomVersion;
-    }
-
-    /**
-     * Returns the generated feed/interface.
-     *
-     * @return An XML representation of the feed/interface.
-     */
-    public InterfaceDocument getDocument() {
-        return document;
     }
 }
