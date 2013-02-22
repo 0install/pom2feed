@@ -39,8 +39,10 @@ public class FeedBuilder {
      *
      * @param model The Maven model to extract the metadata from. Should be from
      * the latest version of the project.
+     * @return The {@link FeedBuilder} instance for calling further methods in a
+     * fluent fashion.
      */
-    public void addMetadata(Model model) {
+    public FeedBuilder addMetadata(Model model) {
         feed.addName(model.getName());
         feed.addNewSummary().setStringValue("Auto-generated feed for " + model.getGroupId() + "." + model.getArtifactId());
         if (!Strings.isNullOrEmpty(model.getDescription())) {
@@ -49,6 +51,7 @@ public class FeedBuilder {
         if (!Strings.isNullOrEmpty(model.getUrl())) {
             feed.addHomepage(model.getUrl());
         }
+        return this;
     }
 
     /**
@@ -57,12 +60,13 @@ public class FeedBuilder {
      *
      * @param model The Maven model to extract the version and dependency
      * information from.
-     * @return The implementation that was created and added to the feed.
+     * @return The {@link FeedBuilder} instance for calling further methods in a
+     * fluent fashion.
      */
-    public Implementation addLocalImplementation(Model model) {
+    public FeedBuilder addLocalImplementation(Model model) {
         Implementation implementation = addImplementation(model);
         implementation.setLocalPath(".");
-        return implementation;
+        return this;
     }
 
     /**
@@ -71,9 +75,10 @@ public class FeedBuilder {
      *
      * @param model The Maven model to extract the version and dependency
      * information from.
-     * @return The implementation that was created and added to the feed.
+     * @return The {@link FeedBuilder} instance for calling further methods in a
+     * fluent fashion.
      */
-    public Implementation addRemoteImplementation(Model model, URI jarUri) {
+    public FeedBuilder addRemoteImplementation(Model model, URI jarUri) {
         Implementation implementation = addImplementation(model);
 
         String hash = "abc";
@@ -84,7 +89,7 @@ public class FeedBuilder {
 
         // TODO: Add <file>
 
-        return implementation;
+        return this;
     }
 
     /**
