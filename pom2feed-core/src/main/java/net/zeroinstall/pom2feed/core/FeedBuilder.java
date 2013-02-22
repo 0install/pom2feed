@@ -7,22 +7,37 @@ import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
- * Iterativley builds Zero Install feeds using data from Maven projects.
+ * Iteratively builds Zero Install feeds using data from Maven projects.
  */
 public class FeedBuilder {
 
     private final URI pom2feedService;
-    private final InterfaceDocument document = InterfaceDocument.Factory.newInstance();
-    private final Feed feed = document.addNewInterface();
+    private final InterfaceDocument document;
+    private final Feed feed;
 
     /**
-     * Creates a new feed builder.
+     * Creates feed builder for a new feed.
      *
      * @param pom2feedService The base URI of the pom2feed service used to
      * provide dependencies.
      */
     public FeedBuilder(URI pom2feedService) {
         this.pom2feedService = pom2feedService;
+        this.document = InterfaceDocument.Factory.newInstance();
+        this.feed = document.addNewInterface();
+    }
+
+    /**
+     * Creates a feed builder an existing feed.
+     *
+     * @param pom2feedService The base URI of the pom2feed service used to
+     * provide dependencies.
+     * @param document The existing feed document.
+     */
+    public FeedBuilder(URI pom2feedService, InterfaceDocument document) {
+        this.pom2feedService = pom2feedService;
+        this.document = document;
+        this.feed = (document.getInterface() != null) ? document.getInterface() : document.addNewInterface();
     }
 
     /**
