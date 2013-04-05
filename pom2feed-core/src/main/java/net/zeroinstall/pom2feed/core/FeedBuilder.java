@@ -102,7 +102,10 @@ public class FeedBuilder {
         ManifestDigest digest = implementation.addNewManifestDigest();
         digest.setSha1New(FeedUtils.getSha1ManifestDigest(hash, size, fileName));
 
-        // TODO: Add <file>
+        File file = implementation.addNewFile();
+        file.setHref(jarUri.toString());
+        file.setSize(size);
+        file.setDest(fileName);
 
         return this;
     }
@@ -154,8 +157,8 @@ public class FeedBuilder {
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
             net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
             ziDep.setInterface(pom2feedService.toString()
-                    // TODO: Transform to proper feed URI
-                    + mavenDep.getGroupId() + "/" + mavenDep.getArtifactId());
+                    + mavenDep.getGroupId().replace('.', '/') + '/'
+                    + mavenDep.getArtifactId().replace('.', '/'));
             ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
 
             Environment environment = ziDep.addNewEnvironment();
