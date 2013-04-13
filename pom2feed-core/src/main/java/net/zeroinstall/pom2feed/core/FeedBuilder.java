@@ -1,9 +1,18 @@
 package net.zeroinstall.pom2feed.core;
 
-import com.google.common.base.Strings;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
+import static net.zeroinstall.pom2feed.core.FeedUtils.*;
+import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
@@ -11,6 +20,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  */
 public class FeedBuilder {
 
+    private final URI mavenRepository;
     private final URI pom2feedService;
     private final InterfaceDocument document;
     private final Feed feed;
@@ -18,11 +28,14 @@ public class FeedBuilder {
     /**
      * Creates feed builder for a new feed.
      *
+     * @param mavenRepository The base URI of the Maven repository used to
+     * provide binaries.
      * @param pom2feedService The base URI of the pom2feed service used to
      * provide dependencies.
      */
-    public FeedBuilder(URI pom2feedService) {
-        this.pom2feedService = pom2feedService;
+    public FeedBuilder(URI mavenRepository, URI pom2feedService) {
+        this.mavenRepository = checkNotNull(mavenRepository);
+        this.pom2feedService = checkNotNull(pom2feedService);
         this.document = InterfaceDocument.Factory.newInstance();
         this.feed = document.addNewInterface();
     }
@@ -34,9 +47,10 @@ public class FeedBuilder {
      * provide dependencies.
      * @param document The existing feed document.
      */
-    public FeedBuilder(URI pom2feedService, InterfaceDocument document) {
-        this.pom2feedService = pom2feedService;
-        this.document = document;
+    public FeedBuilder(URI mavenRepository, URI pom2feedService, InterfaceDocument document) {
+        this.mavenRepository = checkNotNull(mavenRepository);
+        this.pom2feedService = checkNotNull(pom2feedService);
+        this.document = checkNotNull(document);
         this.feed = (document.getInterface() != null) ? document.getInterface() : document.addNewInterface();
     }
 
@@ -58,12 +72,14 @@ public class FeedBuilder {
      * fluent fashion.
      */
     public FeedBuilder addMetadata(Model model) {
+        checkNotNull(model);
+
         feed.addName(model.getName());
         feed.addNewSummary().setStringValue("Auto-generated feed for " + model.getGroupId() + "." + model.getArtifactId());
-        if (!Strings.isNullOrEmpty(model.getDescription())) {
+        if (!isNullOrEmpty(model.getDescription())) {
             feed.addNewDescription().setStringValue(model.getDescription());
         }
-        if (!Strings.isNullOrEmpty(model.getUrl())) {
+        if (!isNullOrEmpty(model.getUrl())) {
             feed.addHomepage(model.getUrl());
         }
         return this;
@@ -79,7 +95,15 @@ public class FeedBuilder {
      * fluent fashion.
      */
     public FeedBuilder addLocalImplementation(Model model) {
-        Implementation implementation = addImplementation(model);
+        checkNotNull(model);
+
+        Implementation implementation = addNewImplementation(model);
+        addDependencies(implementation, model);
+
+        Command command = addNewCommand(implementation);
+        command.setPath(getArtifactLocalFileName(model));
+
+        implementation.setId(".");
         implementation.setLocalPath(".");
         return this;
     }
@@ -93,20 +117,16 @@ public class FeedBuilder {
      * @return The {@link FeedBuilder} instance for calling further methods in a
      * fluent fashion.
      */
-    public FeedBuilder addRemoteImplementation(Model model, URI jarUri) {
-        Implementation implementation = addImplementation(model);
+    public FeedBuilder addRemoteImplementation(Model model) throws IOException {
+        checkNotNull(model);
 
-        String hash = "abc";
-        long size = 123;
-        String fileName = model.getBuild().getFinalName() + "." + model.getPackaging();
-        ManifestDigest digest = implementation.addNewManifestDigest();
-        digest.setSha1New(FeedUtils.getSha1ManifestDigest(hash, size, fileName));
+        Implementation implementation = addNewImplementation(model);
+        addDependencies(implementation, model);
 
-        File file = implementation.addNewFile();
-        file.setHref(jarUri.toString());
-        file.setSize(size);
-        file.setDest(fileName);
+        Command command = addNewCommand(implementation);
+        command.setPath(getArtifactFileName(model));
 
+        addFile(implementation, model);
         return this;
     }
 
@@ -118,52 +138,76 @@ public class FeedBuilder {
      * information from.
      * @return The implementation that was created and added to the feed.
      */
-    private Implementation addImplementation(Model model) {
+    private Implementation addNewImplementation(Model model) {
         Implementation implementation = feed.addNewImplementation();
-        implementation.setVersion(FeedUtils.pom2feedVersion(model.getVersion()));
+        implementation.setVersion(pom2feedVersion(model.getVersion()));
         if (!model.getLicenses().isEmpty()) {
             implementation.setLicense(model.getLicenses().get(0).getName());
         }
-
-        addCommand(implementation, model);
-        addDependencies(implementation, model);
-
         return implementation;
     }
 
-    private void addCommand(Implementation implementation, Model model) {
+    /**
+     * Adds a Java run command for an implementation.
+     *
+     * @param implementation The implementation to add the command to.
+     */
+    private Command addNewCommand(Implementation implementation) {
         Command command = implementation.addNewCommand();
         command.setName("run");
-        command.setPath(model.getBuild().getFinalName() + "." + model.getPackaging());
 
         Runner runner = command.addNewRunner();
         runner.setInterface("http://repo.roscidus.com/java/openjdk-jre");
         runner.addArg("-jar");
+
+        return command;
     }
 
     private void addDependencies(Implementation implementation, Model model) {
-        Plugin compilerPlugin = model.getBuild().getPluginsAsMap().get("org.apache.maven.plugins:maven-compiler-plugin");
-        if (compilerPlugin != null) {
-            Xpp3Dom config = (Xpp3Dom) compilerPlugin.getConfiguration();
-            String javaVersion = config.getChild("target").getValue();
-            if (!Strings.isNullOrEmpty(javaVersion)) {
-                net.zeroinstall.model.Dependency javaDep = implementation.addNewRequires();
-                javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
-                Constraint constraint = javaDep.addNewVersion2();
-                constraint.setNotBefore(javaVersion);
+        if (model.getBuild() != null && model.getBuild().getPluginsAsMap() != null) {
+            Plugin compilerPlugin = model.getBuild().getPluginsAsMap().get("org.apache.maven.plugins:maven-compiler-plugin");
+            if (compilerPlugin != null) {
+                Xpp3Dom config = (Xpp3Dom) compilerPlugin.getConfiguration();
+                String javaVersion = config.getChild("target").getValue();
+                if (!isNullOrEmpty(javaVersion)) {
+                    net.zeroinstall.model.Dependency javaDep = implementation.addNewRequires();
+                    javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
+                    Constraint constraint = javaDep.addNewVersion2();
+                    constraint.setNotBefore(javaVersion);
+                }
             }
         }
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
             net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-            ziDep.setInterface(pom2feedService.toString()
-                    + mavenDep.getGroupId().replace('.', '/') + '/'
-                    + mavenDep.getArtifactId().replace('.', '/'));
+            ziDep.setInterface(MavenUtils.getServiceUri(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
             ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
 
             Environment environment = ziDep.addNewEnvironment();
             environment.setName("CLASSPATH");
             environment.setInsert(".");
         }
+    }
+
+    private void addFile(Implementation implementation, Model model) throws IOException {
+        String fileName = getArtifactFileName(model);
+        URI fileUri = getArtifactFileUri(mavenRepository, model);
+
+        HttpURLConnection connection = (HttpURLConnection) fileUri.toURL().openConnection();
+        connection.setRequestMethod("HEAD");
+        long size = connection.getContentLength();
+
+        InputStream stream = new URL(fileUri.toString() + ".sha1").openStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        String hash = reader.readLine();
+
+        File file = implementation.addNewFile();
+        file.setHref(fileUri.toString());
+        file.setSize(size);
+        file.setDest(fileName);
+
+        ManifestDigest digest = implementation.addNewManifestDigest();
+        digest.setSha1New(getSha1ManifestDigest(hash, size, fileName));
+        implementation.setId("sha1new=" + digest.getSha1New());
     }
 }

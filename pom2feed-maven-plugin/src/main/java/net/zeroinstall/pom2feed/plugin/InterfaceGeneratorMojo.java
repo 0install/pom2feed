@@ -2,6 +2,7 @@ package net.zeroinstall.pom2feed.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import org.apache.maven.plugin.AbstractMojo;
@@ -66,7 +67,10 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      */
     private InterfaceDocument generateZeroInstallInterfaceFromMavenModel() {
         final MavenProject thisProject = ((MavenProject) getPluginContext().get("project"));
-        final FeedBuilder feedBuilder = new FeedBuilder(null);
+        final FeedBuilder feedBuilder = new FeedBuilder(
+                // TODO: Make configurable
+                URI.create("http://repo.maven.apache.org/maven2/"),
+                URI.create("http://0install.de/maven/"));
         feedBuilder.addMetadata(thisProject.getOriginalModel());
         return feedBuilder.getDocument();
     }
