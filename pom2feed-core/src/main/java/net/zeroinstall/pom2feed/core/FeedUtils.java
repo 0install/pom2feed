@@ -1,5 +1,6 @@
 package net.zeroinstall.pom2feed.core;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Throwables;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -7,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.binary.Hex;
 
 /**
- * Utiltity classes for creating Zero Install feeds.
+ * Utility class for creating Zero Install feeds.
  */
 final class FeedUtils {
 
@@ -19,7 +20,7 @@ final class FeedUtils {
      */
     public static String pom2feedVersion(String pomVersion) {
         // TODO: Handle -snapshot, rc, etc.
-        return pomVersion;
+        return checkNotNull(pomVersion);
     }
 
     /**
@@ -31,7 +32,11 @@ final class FeedUtils {
      * @return The hex-encoded sha1 digest.
      */
     public static String getSha1ManifestDigest(String hash, long size, String fileName) {
-        String manifest = "F " + hash + " 0 " + size + " " + fileName + "\n";
+        String manifest = "F "
+                + checkNotNull(hash)
+                + " 0 " // modification timestamp
+                + size + " "
+                + checkNotNull(fileName) + "\n";
         return sha1(manifest);
     }
 
