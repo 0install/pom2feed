@@ -9,7 +9,7 @@ public final class ArtifactUtils {
     }
 
     /**
-     * Checks that a string is a valid artifact path.
+     * Checks that a string is a valid artifact URI path.
      */
     public static boolean validatePath(final String value) {
         String[] parts = value.split("/");
@@ -17,7 +17,7 @@ public final class ArtifactUtils {
             return false;
         }
         for (String part : parts) {
-            if (!part.matches("[A-Za-z0-9_\\.-]+")) {
+            if (!part.matches("[A-Za-z0-9_-]+")) {
                 return false;
             }
         }
