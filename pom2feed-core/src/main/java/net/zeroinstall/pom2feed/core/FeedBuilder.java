@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
@@ -21,25 +20,25 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 public class FeedBuilder {
 
     /**
-     * The base URI of the Maven repository used to provide binaries.
+     * The base URL of the Maven repository used to provide binaries.
      */
-    private final URI mavenRepository;
+    private final URL mavenRepository;
     /**
-     * The base URI of the pom2feed service used to provide dependencies.
+     * The base URL of the pom2feed service used to provide dependencies.
      */
-    private final URI pom2feedService;
+    private final URL pom2feedService;
     private final InterfaceDocument document;
     private final Feed feed;
 
     /**
      * Creates feed builder for a new feed.
      *
-     * @param mavenRepository The base URI of the Maven repository used to
+     * @param mavenRepository The base URL of the Maven repository used to
      * provide binaries.
-     * @param pom2feedService The base URI of the pom2feed service used to
+     * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies.
      */
-    public FeedBuilder(URI mavenRepository, URI pom2feedService) {
+    public FeedBuilder(URL mavenRepository, URL pom2feedService) {
         this.mavenRepository = checkNotNull(mavenRepository);
         this.pom2feedService = checkNotNull(pom2feedService);
         this.document = InterfaceDocument.Factory.newInstance();
@@ -49,11 +48,11 @@ public class FeedBuilder {
     /**
      * Creates a feed builder an existing feed.
      *
-     * @param pom2feedService The base URI of the pom2feed service used to
+     * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies.
      * @param document The existing feed document.
      */
-    public FeedBuilder(URI mavenRepository, URI pom2feedService, InterfaceDocument document) {
+    public FeedBuilder(URL mavenRepository, URL pom2feedService, InterfaceDocument document) {
         this.mavenRepository = checkNotNull(mavenRepository);
         this.pom2feedService = checkNotNull(pom2feedService);
         this.document = checkNotNull(document);
@@ -192,7 +191,7 @@ public class FeedBuilder {
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
             net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-            ziDep.setInterface(MavenUtils.getServiceUri(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
+            ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
             ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
 
             Environment environment = ziDep.addNewEnvironment();
@@ -209,20 +208,20 @@ public class FeedBuilder {
      * @throws IOException
      */
     private void addFile(Implementation implementation, Model model) throws IOException {
-        String fileUri = getArtifactFileUri(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
+        String fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
 
-        HttpURLConnection connection = (HttpURLConnection) URI.create(fileUri).toURL().openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(fileUrl).openConnection();
         connection.setRequestMethod("HEAD");
         long size = connection.getContentLength();
 
-        InputStream stream = new URL(fileUri.toString() + ".sha1").openStream();
+        InputStream stream = new URL(fileUrl.toString() + ".sha1").openStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String hash = reader.readLine();
 
         String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
 
         File file = implementation.addNewFile();
-        file.setHref(fileUri);
+        file.setHref(fileUrl);
         file.setSize(size);
         file.setDest(fileName);
 

@@ -2,7 +2,8 @@ package net.zeroinstall.pom2feed.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,9 +40,13 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        ensureOutputDirectoryExists();
-        final InterfaceDocument generatedInterface = generateZeroInstallInterfaceFromMavenModel();
-        saveInterfaceDocument(generatedInterface);
+        try {
+            ensureOutputDirectoryExists();
+            final InterfaceDocument generatedInterface = generateZeroInstallInterfaceFromMavenModel();
+            saveInterfaceDocument(generatedInterface);
+        } catch (MalformedURLException ex) {
+            throw new MojoFailureException("pom2feed service URL invalid", ex);
+        }
     }
 
     /**
@@ -65,12 +70,12 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      *
      * @return The generated Zero Install Interface.
      */
-    private InterfaceDocument generateZeroInstallInterfaceFromMavenModel() {
+    private InterfaceDocument generateZeroInstallInterfaceFromMavenModel() throws MalformedURLException {
         final MavenProject thisProject = ((MavenProject) getPluginContext().get("project"));
         final FeedBuilder feedBuilder = new FeedBuilder(
                 // TODO: Make configurable
-                URI.create("http://repo.maven.apache.org/maven2/"),
-                URI.create("http://0install.de/maven/"));
+                new URL("http://repo.maven.apache.org/maven2/"),
+                new URL("http://0install.de/maven/"));
         feedBuilder.addMetadata(thisProject.getOriginalModel());
         return feedBuilder.getDocument();
     }

@@ -11,7 +11,7 @@ public final class ArtifactUtils {
     }
 
     /**
-     * Checks that a string is a valid artifact URI path.
+     * Checks that a string is a valid artifact URL path.
      */
     public static boolean validatePath(String value) {
         checkNotNull(value);

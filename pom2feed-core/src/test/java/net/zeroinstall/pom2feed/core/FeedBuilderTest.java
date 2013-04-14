@@ -1,6 +1,6 @@
 package net.zeroinstall.pom2feed.core;
 
-import java.net.URI;
+import java.net.URL;
 import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
 import org.junit.*;
@@ -8,15 +8,20 @@ import static org.junit.Assert.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import static net.zeroinstall.pom2feed.core.FeedUtils.getSha1ManifestDigest;
 
 public class FeedBuilderTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
-    private FeedBuilder builder = new FeedBuilder(
-            URI.create("http://localhost:8089/"),
-            URI.create("http://0install.de/maven/"));
+    private FeedBuilder builder;
+
+    public FeedBuilderTest() throws MalformedURLException {
+        this.builder = new FeedBuilder(
+                new URL("http://localhost:8089/"),
+                new URL("http://0install.de/maven/"));
+    }
 
     @Test
     public void testAddMetadata() {

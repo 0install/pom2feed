@@ -2,7 +2,7 @@ package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.net.URI;
+import java.net.URL;
 import org.apache.maven.model.Model;
 
 /**
@@ -14,13 +14,13 @@ public final class MavenUtils {
     }
 
     /**
-     * Returns a pom2feed service URI for a specific artifact.
+     * Returns a pom2feed service URL for a specific artifact.
      *
-     * @param pom2feedService The base URI of the pom2feed service.
+     * @param pom2feedService The base URL of the pom2feed service.
      * @param groupId The group ID of the artifact.
      * @param artifactId The artifact ID.
      */
-    public static String getServiceUri(URI pom2feedService, String groupId, String artifactId) {
+    public static String getServiceUrl(URL pom2feedService, String groupId, String artifactId) {
         checkNotNull(pom2feedService);
         checkNotNull(groupId);
         checkNotNull(artifactId);
@@ -38,16 +38,16 @@ public final class MavenUtils {
     }
 
     /**
-     * Returns the repository URI for a Maven artifact file.
+     * Returns the repository URL for a Maven artifact file.
      *
-     * @param mavenRepository The base URI of the Maven repository.
+     * @param mavenRepository The base URL of the Maven repository.
      * @param model The Maven model describing the artifact to get.
      * @param groupId The artifact ID.
      * @param artifactId The artifact ID.
      * @param version The artifact version.
      * @param fileType The file type to return (e.g. JAR or POM).
      */
-    public static String getArtifactFileUri(URI mavenRepository, String groupId, String artifactId, String version, String fileType) {
+    public static String getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String fileType) {
         checkNotNull(mavenRepository);
         checkArgument(checkNotNull(groupId).matches("[A-Za-z0-9_\\.-]+"));
         checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
@@ -88,10 +88,10 @@ public final class MavenUtils {
      */
     public static String getArtifactLocalFileName(Model model) {
         checkNotNull(model);
-        if (model.getBuild() != null && model.getBuild().getFinalName() != null) {
-            return model.getBuild().getFinalName() + "." + model.getPackaging();
-        } else {
-            return getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
-        }
+        return (model.getBuild() != null && model.getBuild().getFinalName() != null)
+                // Use custom final name
+                ? model.getBuild().getFinalName() + "." + model.getPackaging()
+                // Use default name
+                : getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
     }
 }
