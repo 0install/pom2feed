@@ -53,10 +53,10 @@ public class MavenUtilsTest {
     @Test
     public void testGetArtifactFileUrl() throws MalformedURLException {
         assertEquals(
-                "http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom",
+                new URL("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
                 getArtifactFileUrl(new URL("http://0install.de/maven"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
         assertEquals(
-                "http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom",
+                new URL("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
                 getArtifactFileUrl(new URL("http://0install.de/maven/"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
     }
 }

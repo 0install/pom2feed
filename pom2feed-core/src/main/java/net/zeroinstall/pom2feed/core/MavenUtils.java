@@ -2,6 +2,8 @@ package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.maven.model.Model;
 
@@ -47,7 +49,7 @@ public final class MavenUtils {
      * @param version The artifact version.
      * @param fileType The file type to return (e.g. JAR or POM).
      */
-    public static String getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String fileType) {
+    public static URL getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String fileType) {
         checkNotNull(mavenRepository);
         checkArgument(checkNotNull(groupId).matches("[A-Za-z0-9_\\.-]+"));
         checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
@@ -58,12 +60,15 @@ public final class MavenUtils {
         if (!repositoryString.endsWith("/")) {
             repositoryString = repositoryString + "/";
         }
-
-        return repositoryString
-                + groupId.replace('.', '/') + '/'
-                + artifactId.replace('.', '/') + '/'
-                + version + '/'
-                + getArtifactFileName(artifactId, version, fileType);
+        try {
+            return new URL(repositoryString
+                    + groupId.replace('.', '/') + '/'
+                    + artifactId.replace('.', '/') + '/'
+                    + version + '/'
+                    + getArtifactFileName(artifactId, version, fileType));
+        } catch (MalformedURLException ex) {
+            throw propagate(ex);
+        }
     }
 
     /**
