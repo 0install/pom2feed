@@ -8,7 +8,7 @@ import org.apache.maven.model.Model;
 /**
  * Utility class for creating interacting with Maven.
  */
-final class MavenUtils {
+public final class MavenUtils {
 
     private MavenUtils() {
     }
@@ -38,15 +38,21 @@ final class MavenUtils {
     }
 
     /**
-     * Returns the repository URI for a Maven artifact.
+     * Returns the repository URI for a Maven artifact file.
      *
      * @param mavenRepository The base URI of the Maven repository.
      * @param model The Maven model describing the artifact to get.
+     * @param groupId The artifact ID.
+     * @param artifactId The artifact ID.
+     * @param version The artifact version.
+     * @param fileType The file type to return (e.g. JAR or POM).
      */
-    public static String getArtifactUri(URI mavenRepository, String groupId, String artifactId) {
+    public static String getArtifactFileUri(URI mavenRepository, String groupId, String artifactId, String version, String fileType) {
         checkNotNull(mavenRepository);
         checkArgument(checkNotNull(groupId).matches("[A-Za-z0-9_\\.-]+"));
         checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(checkNotNull(version).matches("[A-Za-z0-9_\\.-]+"));
+        checkNotNull(fileType);
 
         String repositoryString = mavenRepository.toString();
         if (!repositoryString.endsWith("/")) {
@@ -55,17 +61,24 @@ final class MavenUtils {
 
         return repositoryString
                 + groupId.replace('.', '/') + '/'
-                + artifactId.replace('.', '/') + '/';
+                + artifactId.replace('.', '/') + '/'
+                + version + '/'
+                + getArtifactFileName(artifactId, version, fileType);
     }
 
     /**
      * Returns the file name of a Maven artifact file.
      *
-     * @param model The Maven model describing the artifact to get.
+     * @param artifactId The artifact ID.
+     * @param version The artifact version.
+     * @param fileType The file type to return (e.g. JAR or POM).
      */
-    public static String getArtifactFileName(Model model) {
-        checkNotNull(model);
-        return model.getArtifactId() + "-" + model.getVersion() + "." + model.getPackaging();
+    public static String getArtifactFileName(String artifactId, String version, String fileType) {
+        checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(checkNotNull(version).matches("[A-Za-z0-9_\\.-]+"));
+        checkNotNull(fileType);
+
+        return artifactId + "-" + version + "." + fileType;
     }
 
     /**
@@ -75,10 +88,10 @@ final class MavenUtils {
      */
     public static String getArtifactLocalFileName(Model model) {
         checkNotNull(model);
-        if (model.getBuild() != null || model.getBuild().getFinalName() != null) {
+        if (model.getBuild() != null && model.getBuild().getFinalName() != null) {
             return model.getBuild().getFinalName() + "." + model.getPackaging();
         } else {
-            return getArtifactFileName(model);
+            return getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
         }
     }
 }

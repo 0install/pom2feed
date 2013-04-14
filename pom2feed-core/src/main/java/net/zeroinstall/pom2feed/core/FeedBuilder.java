@@ -130,7 +130,7 @@ public class FeedBuilder {
         addDependencies(implementation, model);
 
         Command command = addNewCommand(implementation);
-        command.setPath(getArtifactFileName(model));
+        command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging()));
 
         addFile(implementation, model);
         return this;
@@ -209,9 +209,7 @@ public class FeedBuilder {
      * @throws IOException
      */
     private void addFile(Implementation implementation, Model model) throws IOException {
-        String fileName = getArtifactFileName(model);
-        String fileUri = getArtifactUri(mavenRepository, model.getGroupId(), model.getArtifactId())
-                + model.getVersion() + "/" + getArtifactFileName(model);
+        String fileUri = getArtifactFileUri(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
 
         HttpURLConnection connection = (HttpURLConnection) URI.create(fileUri).toURL().openConnection();
         connection.setRequestMethod("HEAD");
@@ -220,6 +218,8 @@ public class FeedBuilder {
         InputStream stream = new URL(fileUri.toString() + ".sha1").openStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String hash = reader.readLine();
+
+        String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
 
         File file = implementation.addNewFile();
         file.setHref(fileUri);
