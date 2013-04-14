@@ -20,7 +20,13 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  */
 public class FeedBuilder {
 
+    /**
+     * The base URI of the Maven repository used to provide binaries.
+     */
     private final URI mavenRepository;
+    /**
+     * The base URI of the pom2feed service used to provide dependencies.
+     */
     private final URI pom2feedService;
     private final InterfaceDocument document;
     private final Feed feed;
@@ -163,6 +169,12 @@ public class FeedBuilder {
         return command;
     }
 
+    /**
+     * Converts Maven dependencies to Zero Install dependencies.
+     *
+     * @param implementation The implementation to add the dependencies to.
+     * @param model The Maven model to extract the dependencies from.
+     */
     private void addDependencies(Implementation implementation, Model model) {
         if (model.getBuild() != null && model.getBuild().getPluginsAsMap() != null) {
             Plugin compilerPlugin = model.getBuild().getPluginsAsMap().get("org.apache.maven.plugins:maven-compiler-plugin");
@@ -189,6 +201,13 @@ public class FeedBuilder {
         }
     }
 
+    /**
+     * Creates a file download entry for a JAR hosted in a Maven repository.
+     *
+     * @param implementation The implementation to add the download entry to.
+     * @param model The Maven model describing the artifact.
+     * @throws IOException
+     */
     private void addFile(Implementation implementation, Model model) throws IOException {
         String fileName = getArtifactFileName(model);
         URI fileUri = getArtifactFileUri(mavenRepository, model);
