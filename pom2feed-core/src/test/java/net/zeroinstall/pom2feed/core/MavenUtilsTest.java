@@ -13,6 +13,9 @@ public class MavenUtilsTest {
     public void testGetServiceUri() {
         assertEquals(
                 "http://0install.de/maven/group/subgroup/artifact/subartifact/",
+                getServiceUri(URI.create("http://0install.de/maven"), "group.subgroup", "artifact.subartifact"));
+        assertEquals(
+                "http://0install.de/maven/group/subgroup/artifact/subartifact/",
                 getServiceUri(URI.create("http://0install.de/maven/"), "group.subgroup", "artifact.subartifact"));
     }
 
@@ -24,6 +27,9 @@ public class MavenUtilsTest {
         model.setVersion("1.0");
         model.setPackaging("jar");
 
+        assertEquals(
+                URI.create("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.jar"),
+                getArtifactFileUri(URI.create("http://0install.de/maven"), model));
         assertEquals(
                 URI.create("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.jar"),
                 getArtifactFileUri(URI.create("http://0install.de/maven/"), model));

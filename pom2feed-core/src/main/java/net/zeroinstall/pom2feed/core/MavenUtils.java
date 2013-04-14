@@ -2,9 +2,7 @@ package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.maven.model.Model;
 
 /**
@@ -18,19 +16,23 @@ final class MavenUtils {
     /**
      * Returns a pom2feed service URI for a specific artifact.
      *
-     * @param pom2FeedService The base URI of the pom2feed service.
+     * @param pom2feedService The base URI of the pom2feed service.
      * @param groupId The group ID of the artifact.
      * @param artifactId The artifact ID.
      */
-    public static String getServiceUri(URI pom2FeedService, String groupId, String artifactId) {
-        checkNotNull(pom2FeedService);
+    public static String getServiceUri(URI pom2feedService, String groupId, String artifactId) {
+        checkNotNull(pom2feedService);
         checkNotNull(groupId);
         checkNotNull(artifactId);
         checkArgument(groupId.matches("[A-Za-z0-9_\\.-]+"));
         checkArgument(artifactId.matches("[A-Za-z0-9_\\.-]+"));
 
-        // TODO: Ensure pom2FeedService ends with slash
-        return pom2FeedService.toString()
+        String serviceString = pom2feedService.toString();
+        if (!serviceString.endsWith("/")) {
+            serviceString = serviceString + "/";
+        }
+
+        return serviceString
                 + groupId.replace('.', '/') + '/'
                 + artifactId.replace('.', '/') + '/';
     }
@@ -44,9 +46,16 @@ final class MavenUtils {
     public static URI getArtifactFileUri(URI mavenRepository, Model model) {
         checkNotNull(mavenRepository);
         checkNotNull(model);
+        checkArgument(model.getGroupId().matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(model.getArtifactId().matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(model.getVersion().matches("[A-Za-z0-9_\\.-]+"));
 
-        // TODO: Ensure pom2FeedService ends with slash
-        return URI.create(mavenRepository.toString()
+        String repositoryString = mavenRepository.toString();
+        if (!repositoryString.endsWith("/")) {
+            repositoryString = repositoryString + "/";
+        }
+
+        return URI.create(repositoryString
                 + model.getGroupId().replace('.', '/') + '/'
                 + model.getArtifactId().replace('.', '/') + '/'
                 + model.getVersion() + '/'
