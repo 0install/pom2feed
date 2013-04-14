@@ -38,28 +38,24 @@ final class MavenUtils {
     }
 
     /**
-     * Returns the download URI for a Maven artifact file.
+     * Returns the repository URI for a Maven artifact.
      *
      * @param mavenRepository The base URI of the Maven repository.
      * @param model The Maven model describing the artifact to get.
      */
-    public static URI getArtifactFileUri(URI mavenRepository, Model model) {
+    public static String getArtifactUri(URI mavenRepository, String groupId, String artifactId) {
         checkNotNull(mavenRepository);
-        checkNotNull(model);
-        checkArgument(model.getGroupId().matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(model.getArtifactId().matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(model.getVersion().matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(checkNotNull(groupId).matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
 
         String repositoryString = mavenRepository.toString();
         if (!repositoryString.endsWith("/")) {
             repositoryString = repositoryString + "/";
         }
 
-        return URI.create(repositoryString
-                + model.getGroupId().replace('.', '/') + '/'
-                + model.getArtifactId().replace('.', '/') + '/'
-                + model.getVersion() + '/'
-                + getArtifactFileName(model));
+        return repositoryString
+                + groupId.replace('.', '/') + '/'
+                + artifactId.replace('.', '/') + '/';
     }
 
     /**

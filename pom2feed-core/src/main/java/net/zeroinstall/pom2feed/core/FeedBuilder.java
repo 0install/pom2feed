@@ -210,9 +210,10 @@ public class FeedBuilder {
      */
     private void addFile(Implementation implementation, Model model) throws IOException {
         String fileName = getArtifactFileName(model);
-        URI fileUri = getArtifactFileUri(mavenRepository, model);
+        String fileUri = getArtifactUri(mavenRepository, model.getGroupId(), model.getArtifactId())
+                + model.getVersion() + "/" + getArtifactFileName(model);
 
-        HttpURLConnection connection = (HttpURLConnection) fileUri.toURL().openConnection();
+        HttpURLConnection connection = (HttpURLConnection) URI.create(fileUri).toURL().openConnection();
         connection.setRequestMethod("HEAD");
         long size = connection.getContentLength();
 
@@ -221,7 +222,7 @@ public class FeedBuilder {
         String hash = reader.readLine();
 
         File file = implementation.addNewFile();
-        file.setHref(fileUri.toString());
+        file.setHref(fileUri);
         file.setSize(size);
         file.setDest(fileName);
 

@@ -20,19 +20,13 @@ public class MavenUtilsTest {
     }
 
     @Test
-    public void testGetArtifactFileUri() {
-        Model model = new Model();
-        model.setGroupId("group.subgroup");
-        model.setArtifactId("artifact.subartifact");
-        model.setVersion("1.0");
-        model.setPackaging("jar");
-
+    public void testGetArtifactUri() {
         assertEquals(
-                URI.create("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.jar"),
-                getArtifactFileUri(URI.create("http://0install.de/maven"), model));
+                "http://0install.de/maven/group/subgroup/artifact/subartifact/",
+                getArtifactUri(URI.create("http://0install.de/maven"), "group.subgroup", "artifact.subartifact"));
         assertEquals(
-                URI.create("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.jar"),
-                getArtifactFileUri(URI.create("http://0install.de/maven/"), model));
+                "http://0install.de/maven/group/subgroup/artifact/subartifact/",
+                getArtifactUri(URI.create("http://0install.de/maven/"), "group.subgroup", "artifact.subartifact"));
     }
 
     @Test
