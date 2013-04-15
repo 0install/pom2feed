@@ -33,9 +33,9 @@ public class FeedCache implements FeedProvider {
         try {
             return cache.get(artifactPath);
         } catch (ExecutionException ex) {
-            propagateIfInstanceOf(ex, IOException.class);
-            propagateIfInstanceOf(ex, SAXException.class);
-            propagateIfInstanceOf(ex, ModelBuildingException.class);
+            propagateIfInstanceOf(ex.getCause(), IOException.class);
+            propagateIfInstanceOf(ex.getCause(), SAXException.class);
+            propagateIfInstanceOf(ex.getCause(), ModelBuildingException.class);
             throw propagate(ex);
         }
     }
