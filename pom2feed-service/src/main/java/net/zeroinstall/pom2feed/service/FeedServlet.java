@@ -105,7 +105,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondFeed(HttpServletResponse resp, String artifactPath) throws IOException {
         resp.setContentType("application/xml");
-        resp.setCharacterEncoding(Charsets.UTF_8.name());
+        resp.setCharacterEncoding("UTF-8");
         try {
             resp.getWriter().write(feedProvider.getFeed(artifactPath));
         } catch (SAXException ex) {
@@ -125,7 +125,7 @@ public class FeedServlet extends HttpServlet {
         }
 
         resp.setContentType("text/plain");
-        resp.setCharacterEncoding(Charsets.UTF_8.name());
+        resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(gpgKeyData);
     }
 
@@ -134,7 +134,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondXSL(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/xml");
-        resp.setCharacterEncoding(Charsets.UTF_8.name());
+        resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(xslData);
     }
 
@@ -143,7 +143,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondCSS(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/css");
-        resp.setCharacterEncoding(Charsets.UTF_8.name());
+        resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(cssData);
     }
 }
