@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import net.zeroinstall.pom2feed.core.MavenUtils;
@@ -50,8 +51,21 @@ public class FeedGenerator implements FeedProvider {
 
     @Override
     public String getFeed(final String artifactPath) throws IOException, SAXException, ModelBuildingException {
-        MavenMetadata metadata = MavenMetadata.load(
-                new URL(mavenRepository.toString() + artifactPath + "maven-metadata.xml"));
+        InterfaceDocument feed = buildFeed(
+                MavenMetadata.load(new URL(mavenRepository.toString() + artifactPath + "maven-metadata.xml")));
+
+        File tempFile = File.createTempFile("pom2feed-service", ".xml");
+        try {
+            feed.save(tempFile,
+                    new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
+            // TODO: Use 0publish to sign tempFile
+            return FileUtils.readFileToString(tempFile, "UTF-8");
+        } finally {
+            tempFile.delete();
+        }
+    }
+
+    private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException, IOException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
 
         feedBuilder.addMetadata(
@@ -62,15 +76,7 @@ public class FeedGenerator implements FeedProvider {
                     getModel(metadata.getGroupId(), metadata.getArtifactId(), version));
         }
 
-        File tempFile = File.createTempFile("pom2feed-service", ".xml");
-        try {
-            feedBuilder.getDocument().save(tempFile,
-                    new XmlOptions().setUseDefaultNamespace());
-            // TODO: Use 0publish to sign tempFile
-            return FileUtils.readFileToString(tempFile, "UTF-8");
-        } finally {
-            tempFile.delete();
-        }
+        return feedBuilder.getDocument();
     }
 
     private Model getModel(String groupId, String artifactId, String version) throws ModelBuildingException {
