@@ -24,6 +24,12 @@ public class FeedBuilderTest {
     }
 
     @Test
+    public void testXslStylesheet() {
+        String xmlText = builder.getDocument().xmlText();
+        assertTrue(xmlText.contains("<?xml-stylesheet type='text/xsl' href='interface.xsl'?>"));
+    }
+
+    @Test
     public void testAddMetadata() {
         Model model = new Model();
         model.setName("Name");

@@ -12,6 +12,7 @@ import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
 import static net.zeroinstall.pom2feed.core.FeedUtils.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
+import org.apache.xmlbeans.XmlCursor;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
@@ -43,6 +44,11 @@ public class FeedBuilder {
         this.pom2feedService = checkNotNull(pom2feedService);
         this.document = InterfaceDocument.Factory.newInstance();
         this.feed = document.addNewInterface();
+
+        // Add XSL stylesheet reference
+        XmlCursor cursor = this.document.newCursor();
+        cursor.toNextToken();
+        cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
     }
 
     /**
