@@ -1,5 +1,7 @@
 package net.zeroinstall.pom2feed.service;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -8,7 +10,6 @@ import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import net.zeroinstall.pom2feed.core.MavenUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -58,8 +59,7 @@ public class FeedGenerator implements FeedProvider {
         try {
             feed.save(tempFile,
                     new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
-            // TODO: Use 0publish to sign tempFile
-            return FileUtils.readFileToString(tempFile, "UTF-8");
+            return Files.toString(tempFile, Charsets.UTF_8);
         } finally {
             tempFile.delete();
         }
