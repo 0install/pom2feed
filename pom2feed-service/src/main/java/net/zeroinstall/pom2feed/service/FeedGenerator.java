@@ -3,12 +3,11 @@ package net.zeroinstall.pom2feed.service;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
@@ -58,12 +57,12 @@ public class FeedGenerator implements FeedProvider {
                 : new URL(pom2feedService.toString() + "/");
         this.signingBinary = signingBinary;
     }
-    
+
     @Override
     public String getFeed(final String artifactPath) throws IOException, SAXException, ModelBuildingException {
         InterfaceDocument feed = buildFeed(
                 MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml")));
-        
+
         File tempFile = File.createTempFile("pom2feed-service", ".xml");
         try {
             feed.save(tempFile, new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
@@ -73,62 +72,62 @@ public class FeedGenerator implements FeedProvider {
             tempFile.delete();
         }
     }
-    
+
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException, IOException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
-        
+
         feedBuilder.addMetadata(
                 getModel(metadata, metadata.getLatestVersion()));
-        
+
         for (String version : metadata.getVersions()) {
             feedBuilder.addRemoteImplementation(
                     getModel(metadata, version));
         }
-        
+
         return feedBuilder.getDocument();
     }
-    
+
     private Model getModel(MavenMetadata metadata, String version) throws ModelBuildingException {
         UrlModelSource modelSource = new UrlModelSource(MavenUtils.getArtifactFileUrl(mavenRepository,
                 metadata.getGroupId(), metadata.getArtifactId(), version, "pom"));
         ModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setModelSource(modelSource);
         request.setModelResolver(new RepositoryModelResolver());
-        
+
         return new DefaultModelBuilderFactory().newInstance().
                 build(request).getEffectiveModel();
     }
-    
+
     private class RepositoryModelResolver implements ModelResolver {
-        
+
         @Override
         public ModelSource resolveModel(String groupId, String artifactId, String version) throws UnresolvableModelException {
             return new UrlModelSource(MavenUtils.getArtifactFileUrl(mavenRepository,
                     groupId, artifactId, version, "pom"));
         }
-        
+
         @Override
         public void addRepository(Repository repository) throws InvalidRepositoryException {
         }
-        
+
         @Override
         public ModelResolver newCopy() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-    
+
     private void signFeed(String path) throws IOException {
         if (isNullOrEmpty(signingBinary)) {
             return;
         }
-        
+
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(signingBinary, new String[]{path});
-        
+
         try {
             if (process.waitFor() != 0) {
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                throw new IOException("Unable to sign feed:\n" + errorReader.readLine());
+                throw new IOException("Unable to sign feed:\n"
+                        + new Scanner(process.getErrorStream()).useDelimiter("\\A").next());
             }
         } catch (InterruptedException ex) {
             throw new IOException(ex);
