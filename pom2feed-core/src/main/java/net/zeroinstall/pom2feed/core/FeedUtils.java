@@ -1,5 +1,6 @@
 package net.zeroinstall.pom2feed.core;
 
+import com.google.common.base.Charsets;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Throwables;
 import java.io.UnsupportedEncodingException;
@@ -50,7 +51,7 @@ final class FeedUtils {
 
         byte[] digest;
         try {
-            digest = md.digest(data.getBytes("UTF-8"));
+            digest = md.digest(data.getBytes(Charsets.UTF_8.name()));
         } catch (UnsupportedEncodingException ex) {
             throw Throwables.propagate(ex);
         }
