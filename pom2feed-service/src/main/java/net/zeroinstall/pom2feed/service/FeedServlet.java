@@ -16,22 +16,21 @@ import org.xml.sax.SAXException;
 public class FeedServlet extends HttpServlet {
 
     /**
-     * The base URL of the Maven repository used to provide binaries.
+     * The URL of this service/servlet.
      */
-    private final URL mavenRepository;
+    private final URL serviceURL;
     /**
-     * The base URL of the pom2feed service used to provide dependencies. This
-     * is usually the URL of this service itself.
+     * Provides Zero Install feeds for specific Maven artifacts.
      */
-    private final URL pom2feedService;
     private final FeedProvider feedProvider;
 
     public FeedServlet() throws MalformedURLException {
-        // TODO: Make configurable
-        this.mavenRepository = new URL("http://repo.maven.apache.org/maven2/");
-        this.pom2feedService = new URL("http://0install.de/maven/");
+        // Load configuration from Java system properties
+        this.serviceURL = new URL(System.getProperty("pom2feed-service.serviceURL", "http://0install.de/maven/"));
+        URL mavenRepository = new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/"));
+        String signCommand = System.getProperty("pom2feed-service.signCommand", "");
 
-        this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, pom2feedService));
+        this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, signCommand));
     }
 
     @Override
@@ -67,7 +66,7 @@ public class FeedServlet extends HttpServlet {
         out.write("<body>");
         out.write("<h2>Maven Artifact Zero Install Feed Provider</h2>");
         out.write("<p>This web service provides Zero Install feeds for Maven artifacts. Usage:</p>");
-        out.write("<pre>" + pom2feedService + "{group-id}/{artifact-id}/</pre>");
+        out.write("<pre>" + serviceURL + "{group-id}/{artifact-id}/</pre>");
         out.write("<p>Replace dots in the group and artifact ID with slashes in URL.</p>");
         out.write("</body>");
         out.write("</html>");

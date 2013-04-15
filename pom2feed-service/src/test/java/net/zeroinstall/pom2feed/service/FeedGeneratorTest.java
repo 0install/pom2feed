@@ -2,9 +2,11 @@ package net.zeroinstall.pom2feed.service;
 
 import java.net.URL;
 import org.junit.*;
+import static org.junit.Assert.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.net.MalformedURLException;
+import net.zeroinstall.model.Feed;
 import net.zeroinstall.model.InterfaceDocument;
 
 public class FeedGeneratorTest {
@@ -16,7 +18,8 @@ public class FeedGeneratorTest {
     public FeedGeneratorTest() throws MalformedURLException {
         this.feedGenerator = new FeedGenerator(
                 new URL("http://localhost:8089/"),
-                new URL("http://0install.de/maven/"));
+                new URL("http://0install.de/maven/"),
+                null);
     }
 
     @Test
@@ -36,7 +39,7 @@ public class FeedGeneratorTest {
         stubFor(get(urlEqualTo("/group/artifact/1.1/artifact-1.1.jar.sha1")).
                 willReturn(aResponse().withStatus(200).withBody("123abc")));
 
-        InterfaceDocument feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("group/artifact/"));
+        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("group/artifact/")).getInterface();
 
         verify(getRequestedFor(urlEqualTo("/group/artifact/maven-metadata.xml")));
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.pom")));
@@ -46,5 +49,8 @@ public class FeedGeneratorTest {
         verify(headRequestedFor(urlEqualTo("/group/artifact/1.1/artifact-1.1.jar")));
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.1/artifact-1.1.jar.sha1")));
 
+        assertEquals("Test Artifact", feed.getNameArray(0));
+        assertEquals("1.0", feed.getImplementationArray(0).getId());
+        assertEquals("1.1", feed.getImplementationArray(1).getId());
     }
 }
