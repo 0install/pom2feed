@@ -55,6 +55,24 @@ public class FeedBuilderTest {
     }
 
     @Test
+    public void testAddLocalImplementationNonJar() {
+        Model model = new Model();
+        Build build = new Build();
+        build.setFinalName("artifact");
+        model.setBuild(build);
+        model.setPackaging("war");
+        model.setVersion("1.0");
+
+        Implementation impl = builder.addLocalImplementation(model).
+                getDocument().getInterface().getImplementationArray(0);
+
+        assertEquals(".", impl.getId());
+        assertEquals(".", impl.getLocalPath());
+        assertEquals("1.0", impl.getVersion());
+        assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
+    }
+
+    @Test
     public void testAddRemoteImplementation() throws IOException {
         Model model = new Model();
         model.setGroupId("group");
@@ -76,5 +94,29 @@ public class FeedBuilderTest {
         assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
         assertEquals("1.0", impl.getVersion());
         assertEquals("artifact-1.0.jar", impl.getCommandArray(0).getPath());
+    }
+
+    @Test
+    public void testAddRemoteImplementationNonJar() throws IOException {
+        Model model = new Model();
+        model.setGroupId("group");
+        model.setArtifactId("artifact");
+        model.setPackaging("war");
+        model.setVersion("1.0");
+        stubFor(head(urlEqualTo("/group/artifact/1.0/artifact-1.0.war")).
+                willReturn(aResponse().withStatus(200).withHeader("Content-Length", "1024")));
+        stubFor(get(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")).
+                willReturn(aResponse().withStatus(200).withBody("123abc")));
+
+        Implementation impl = builder.addRemoteImplementation(model).
+                getDocument().getInterface().getImplementationArray(0);
+
+        verify(headRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war")));
+        verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")));
+        String expectedDigest = getSha1ManifestDigest("123abc", 1024, "artifact-1.0.war");
+        assertEquals("sha1new=" + expectedDigest, impl.getId());
+        assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
+        assertEquals("1.0", impl.getVersion());
+        assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
     }
 }

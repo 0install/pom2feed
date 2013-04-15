@@ -105,8 +105,10 @@ public class FeedBuilder {
         Implementation implementation = addNewImplementation(model);
         addDependencies(implementation, model);
 
-        Command command = addNewCommand(implementation);
-        command.setPath(getArtifactLocalFileName(model));
+        if (model.getPackaging().equals("jar")) {
+            Command command = addNewCommand(implementation);
+            command.setPath(getArtifactLocalFileName(model));
+        }
 
         implementation.setId(".");
         implementation.setLocalPath(".");
@@ -128,8 +130,10 @@ public class FeedBuilder {
         Implementation implementation = addNewImplementation(model);
         addDependencies(implementation, model);
 
-        Command command = addNewCommand(implementation);
-        command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging()));
+        if (model.getPackaging().equals("jar")) {
+            Command command = addNewCommand(implementation);
+            command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), "jar"));
+        }
 
         addFile(implementation, model);
         return this;
