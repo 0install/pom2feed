@@ -1,10 +1,13 @@
 package net.zeroinstall.pom2feed.service;
 
 import com.google.common.base.Charsets;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import org.apache.maven.model.building.ModelBuildingException;
@@ -20,15 +23,33 @@ public class FeedServlet extends HttpServlet {
      */
     private final URL serviceURL;
     /**
+     * The GnuPG key used to sign feeds.
+     */
+    private final String gpgKeyData;
+    /**
+     * The XSL stylesheet for feeds.
+     */
+    private final String xslData;
+    /**
+     * The CSS stylesheet for feeds.
+     */
+    private final String cssData;
+    /**
      * Provides Zero Install feeds for specific Maven artifacts.
      */
     private final FeedProvider feedProvider;
 
-    public FeedServlet() throws MalformedURLException {
+    public FeedServlet() throws MalformedURLException, IOException {
         // Load configuration from Java system properties
-        this.serviceURL = new URL(System.getProperty("pom2feed-service.serviceURL", "http://0install.de/maven/"));
+        this.serviceURL = new URL(System.getProperty("pom2feed-service.serviceURL", "http://localhost:8080/pom2feed/"));
         URL mavenRepository = new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/"));
         String signCommand = System.getProperty("pom2feed-service.signCommand", "");
+        String gpgKeyFile = System.getProperty("pom2feed-service.gpgKeyFile", "");
+
+        // Load files into memory
+        this.gpgKeyData = isNullOrEmpty(gpgKeyFile) ? null : new Scanner(new File(gpgKeyFile)).useDelimiter("\\A").next();
+        this.xslData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.xsl")).useDelimiter("\\A").next();
+        this.cssData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.css")).useDelimiter("\\A").next();
 
         this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, signCommand));
     }
@@ -42,8 +63,8 @@ public class FeedServlet extends HttpServlet {
 
         if (req.getPathInfo().endsWith(".gpg")) {
             respondGnuPGKey(resp);
-        } else if (req.getPathInfo().endsWith("/interface.xsd")) {
-            respondXSD(resp);
+        } else if (req.getPathInfo().endsWith("/interface.xsl")) {
+            respondXSL(resp);
         } else if (req.getPathInfo().endsWith("/interface.css")) {
             respondCSS(resp);
         } else {
@@ -97,27 +118,32 @@ public class FeedServlet extends HttpServlet {
     /**
      * Responds with a GnuPG key.
      */
-    private void respondGnuPGKey(HttpServletResponse resp) {
+    private void respondGnuPGKey(HttpServletResponse resp) throws IOException {
+        if (isNullOrEmpty(gpgKeyData)) {
+            resp.sendError(404, "No GnuPG key available");
+            return;
+        }
+
         resp.setContentType("text/plain");
         resp.setCharacterEncoding(Charsets.UTF_8.name());
-        // TODO: resp.getWriter().write(data);
+        resp.getWriter().write(gpgKeyData);
     }
 
     /**
-     * Responds with an XSD stylesheet.
+     * Responds with an XSL stylesheet.
      */
-    private void respondXSD(HttpServletResponse resp) {
+    private void respondXSL(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/xml");
         resp.setCharacterEncoding(Charsets.UTF_8.name());
-        // TODO: resp.getWriter().write(data);
+        resp.getWriter().write(xslData);
     }
 
     /**
      * Responds with a CSS stylesheet.
      */
-    private void respondCSS(HttpServletResponse resp) {
+    private void respondCSS(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/css");
         resp.setCharacterEncoding(Charsets.UTF_8.name());
-        // TODO: resp.getWriter().write(data);
+        resp.getWriter().write(cssData);
     }
 }
