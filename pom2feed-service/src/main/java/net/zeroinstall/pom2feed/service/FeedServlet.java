@@ -1,5 +1,6 @@
 package net.zeroinstall.pom2feed.service;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -84,7 +85,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondFeed(HttpServletResponse resp, String artifactPath) throws IOException {
         resp.setContentType("application/xml");
-        resp.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding(Charsets.UTF_8.name());
         try {
             resp.getWriter().write(feedProvider.getFeed(artifactPath));
         } catch (SAXException ex) {
@@ -99,7 +100,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondGnuPGKey(HttpServletResponse resp) {
         resp.setContentType("text/plain");
-        resp.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding(Charsets.UTF_8.name());
         // TODO: resp.getWriter().write(data);
     }
 
@@ -108,7 +109,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondXSD(HttpServletResponse resp) {
         resp.setContentType("text/xml");
-        resp.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding(Charsets.UTF_8.name());
         // TODO: resp.getWriter().write(data);
     }
 
@@ -117,7 +118,7 @@ public class FeedServlet extends HttpServlet {
      */
     private void respondCSS(HttpServletResponse resp) {
         resp.setContentType("text/css");
-        resp.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding(Charsets.UTF_8.name());
         // TODO: resp.getWriter().write(data);
     }
 }

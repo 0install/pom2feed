@@ -1,6 +1,6 @@
 package net.zeroinstall.pom2feed.service;
 
-import static com.google.common.base.Throwables.propagate;
+import static com.google.common.base.Throwables.*;
 import com.google.common.cache.*;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -33,15 +33,10 @@ public class FeedCache implements FeedProvider {
         try {
             return cache.get(artifactPath);
         } catch (ExecutionException ex) {
-            if (ex.getCause() instanceof IOException) {
-                throw (IOException) (ex.getCause());
-            } else if (ex.getCause() instanceof SAXException) {
-                throw (SAXException) (ex.getCause());
-            } else if (ex.getCause() instanceof ModelBuildingException) {
-                throw (ModelBuildingException) (ex.getCause());
-            } else {
-                throw propagate(ex);
-            }
+            propagateIfInstanceOf(ex, IOException.class);
+            propagateIfInstanceOf(ex, SAXException.class);
+            propagateIfInstanceOf(ex, ModelBuildingException.class);
+            throw propagate(ex);
         }
     }
 }

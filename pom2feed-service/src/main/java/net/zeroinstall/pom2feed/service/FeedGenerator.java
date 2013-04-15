@@ -53,7 +53,7 @@ public class FeedGenerator implements FeedProvider {
     @Override
     public String getFeed(final String artifactPath) throws IOException, SAXException, ModelBuildingException {
         InterfaceDocument feed = buildFeed(
-                MavenMetadata.load(new URL(mavenRepository.toString() + artifactPath + "maven-metadata.xml")));
+                MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml")));
 
         File tempFile = File.createTempFile("pom2feed-service", ".xml");
         try {
@@ -69,19 +69,19 @@ public class FeedGenerator implements FeedProvider {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
 
         feedBuilder.addMetadata(
-                getModel(metadata.getGroupId(), metadata.getArtifactId(), metadata.getLatestVersion()));
+                getModel(metadata, metadata.getLatestVersion()));
 
         for (String version : metadata.getVersions()) {
             feedBuilder.addRemoteImplementation(
-                    getModel(metadata.getGroupId(), metadata.getArtifactId(), version));
+                    getModel(metadata, version));
         }
 
         return feedBuilder.getDocument();
     }
 
-    private Model getModel(String groupId, String artifactId, String version) throws ModelBuildingException {
+    private Model getModel(MavenMetadata metadata, String version) throws ModelBuildingException {
         UrlModelSource modelSource = new UrlModelSource(MavenUtils.getArtifactFileUrl(mavenRepository,
-                groupId, artifactId, version, "pom"));
+                metadata.getGroupId(), metadata.getArtifactId(), version, "pom"));
         ModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setModelSource(modelSource);
         request.setModelResolver(new RepositoryModelResolver());
