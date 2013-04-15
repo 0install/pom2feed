@@ -110,7 +110,6 @@ public class FeedBuilder {
             command.setPath(getArtifactLocalFileName(model));
         }
 
-        implementation.setId(".");
         implementation.setLocalPath(".");
         return this;
     }
@@ -149,6 +148,7 @@ public class FeedBuilder {
      */
     private Implementation addNewImplementation(Model model) {
         Implementation implementation = feed.addNewImplementation();
+        implementation.setId(model.getVersion());
         implementation.setVersion(pom2feedVersion(model.getVersion()));
         if (!model.getLicenses().isEmpty()) {
             implementation.setLicense(model.getLicenses().get(0).getName());
@@ -194,13 +194,15 @@ public class FeedBuilder {
         }
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
-            net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-            ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-            ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
+            if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("compile") || mavenDep.getScope().equals("runtime")) {
+                net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
+                ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
+                ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
 
-            Environment environment = ziDep.addNewEnvironment();
-            environment.setName("CLASSPATH");
-            environment.setInsert(".");
+                Environment environment = ziDep.addNewEnvironment();
+                environment.setName("CLASSPATH");
+                environment.setInsert(".");
+            }
         }
     }
 
@@ -231,6 +233,5 @@ public class FeedBuilder {
 
         ManifestDigest digest = implementation.addNewManifestDigest();
         digest.setSha1New(getSha1ManifestDigest(hash, size, fileName));
-        implementation.setId("sha1new=" + digest.getSha1New());
     }
 }

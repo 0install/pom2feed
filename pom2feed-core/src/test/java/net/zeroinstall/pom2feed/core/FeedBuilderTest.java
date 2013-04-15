@@ -48,9 +48,9 @@ public class FeedBuilderTest {
         Implementation impl = builder.addLocalImplementation(model).
                 getDocument().getInterface().getImplementationArray(0);
 
-        assertEquals(".", impl.getId());
-        assertEquals(".", impl.getLocalPath());
+        assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
+        assertEquals(".", impl.getLocalPath());
         assertEquals("artifact.jar", impl.getCommandArray(0).getPath());
     }
 
@@ -66,10 +66,41 @@ public class FeedBuilderTest {
         Implementation impl = builder.addLocalImplementation(model).
                 getDocument().getInterface().getImplementationArray(0);
 
-        assertEquals(".", impl.getId());
-        assertEquals(".", impl.getLocalPath());
+        assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
+        assertEquals(".", impl.getLocalPath());
         assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
+    }
+
+    @Test
+    public void testAddLocalDependencies() {
+        Model model = new Model();
+        Build build = new Build();
+        model.setBuild(build);
+        build.setFinalName("artifact");
+        model.setPackaging("jar");
+        model.setVersion("1.0");
+
+        org.apache.maven.model.Dependency dependency = new org.apache.maven.model.Dependency();
+        dependency.setGroupId("dependency-group");
+        dependency.setArtifactId("dependency-artifact");
+        dependency.setVersion("2.0");
+        dependency.setScope("compile");
+        model.addDependency(dependency);
+
+        org.apache.maven.model.Dependency testDependency = new org.apache.maven.model.Dependency();
+        testDependency.setGroupId("dependency-group");
+        testDependency.setArtifactId("dependency-artifact");
+        testDependency.setVersion("2.0");
+        testDependency.setScope("test");
+        model.addDependency(testDependency);
+
+        Implementation impl = builder.addLocalImplementation(model).
+                getDocument().getInterface().getImplementationArray(0);
+
+        assertEquals("http://0install.de/maven/dependency-group/dependency-artifact/", impl.getRequiresArray(0).getInterface());
+        assertEquals("2.0", impl.getRequiresArray(0).getVersion());
+        assertEquals(1, impl.getRequiresArray().length); // No requirement for test-only dependencies
     }
 
     @Test
@@ -90,9 +121,9 @@ public class FeedBuilderTest {
         verify(headRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.jar")));
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.jar.sha1")));
         String expectedDigest = getSha1ManifestDigest("123abc", 1024, "artifact-1.0.jar");
-        assertEquals("sha1new=" + expectedDigest, impl.getId());
-        assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
+        assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
+        assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
         assertEquals("artifact-1.0.jar", impl.getCommandArray(0).getPath());
     }
 
@@ -114,9 +145,9 @@ public class FeedBuilderTest {
         verify(headRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war")));
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")));
         String expectedDigest = getSha1ManifestDigest("123abc", 1024, "artifact-1.0.war");
-        assertEquals("sha1new=" + expectedDigest, impl.getId());
-        assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
+        assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
+        assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
         assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
     }
 }
