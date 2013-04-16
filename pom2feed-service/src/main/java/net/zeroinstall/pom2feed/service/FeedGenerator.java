@@ -11,7 +11,7 @@ import java.util.Scanner;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
-import net.zeroinstall.pom2feed.core.MavenUtils;
+import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -60,8 +60,8 @@ public class FeedGenerator implements FeedProvider {
 
     @Override
     public String getFeed(final String artifactPath) throws IOException, SAXException, ModelBuildingException {
-        InterfaceDocument feed = buildFeed(
-                MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml")));
+        MavenMetadata metadata = MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml"));
+        InterfaceDocument feed = buildFeed(metadata);
 
         File tempFile = File.createTempFile("pom2feed-service", ".xml");
         try {
@@ -75,20 +75,15 @@ public class FeedGenerator implements FeedProvider {
 
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException, IOException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
-
-        feedBuilder.addMetadata(
-                getModel(metadata, metadata.getLatestVersion()));
-
+        feedBuilder.addMetadata(getModel(metadata, metadata.getLatestVersion()));
         for (String version : metadata.getVersions()) {
-            feedBuilder.addRemoteImplementation(
-                    getModel(metadata, version));
+            feedBuilder.addRemoteImplementation(getModel(metadata, version));
         }
-
         return feedBuilder.getDocument();
     }
 
     private Model getModel(MavenMetadata metadata, String version) throws ModelBuildingException {
-        UrlModelSource modelSource = new UrlModelSource(MavenUtils.getArtifactFileUrl(mavenRepository,
+        UrlModelSource modelSource = new UrlModelSource(getArtifactFileUrl(mavenRepository,
                 metadata.getGroupId(), metadata.getArtifactId(), version, "pom"));
         ModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setModelSource(modelSource);
@@ -102,7 +97,7 @@ public class FeedGenerator implements FeedProvider {
 
         @Override
         public ModelSource resolveModel(String groupId, String artifactId, String version) throws UnresolvableModelException {
-            return new UrlModelSource(MavenUtils.getArtifactFileUrl(mavenRepository,
+            return new UrlModelSource(getArtifactFileUrl(mavenRepository,
                     groupId, artifactId, version, "pom"));
         }
 
