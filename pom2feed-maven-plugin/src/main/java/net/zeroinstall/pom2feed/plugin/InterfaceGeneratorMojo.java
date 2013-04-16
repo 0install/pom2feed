@@ -15,9 +15,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.xmlbeans.XmlOptionsBean;
 
 /**
- * Generates a basic {@link InterfaceDocument Zero Install Interface} without
- * implementations using the projects Maven model instance (means the pom.xml)
- * and saves it to a user-defined place.
+ * Generates a basic {@link InterfaceDocument Zero Install Interface} using the
+ * projects Maven model instance (the pom.xml) and saves it to a user-defined
+ * place.
  */
 @Mojo(name = "generate")
 public class InterfaceGeneratorMojo extends AbstractMojo {
@@ -36,17 +36,17 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     private File outputDirectory;
     @Parameter(defaultValue = "${project.artifactId}", property = "feedName", required = true)
     private String feedName;
+    @Parameter(defaultValue = "http://repo.maven.apache.org/maven2/", property = "mavenRepository", required = true)
+    private URL mavenRepository;
+    @Parameter(defaultValue = "http://0install.de/maven/", property = "pom2feedService", required = true)
+    private URL pom2feedService;
     //</editor-fold>
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            ensureOutputDirectoryExists();
-            final InterfaceDocument generatedInterface = generateZeroInstallInterfaceFromMavenModel();
-            saveInterfaceDocument(generatedInterface);
-        } catch (MalformedURLException ex) {
-            throw new MojoFailureException("pom2feed service URL invalid", ex);
-        }
+        ensureOutputDirectoryExists();
+        final InterfaceDocument generatedInterface = generateZeroInstallInterfaceFromMavenModel();
+        saveInterfaceDocument(generatedInterface);
     }
 
     /**
@@ -70,13 +70,11 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      *
      * @return The generated Zero Install Interface.
      */
-    private InterfaceDocument generateZeroInstallInterfaceFromMavenModel() throws MalformedURLException {
+    private InterfaceDocument generateZeroInstallInterfaceFromMavenModel() {
         final MavenProject thisProject = ((MavenProject) getPluginContext().get("project"));
-        final FeedBuilder feedBuilder = new FeedBuilder(
-                // TODO: Make configurable
-                new URL("http://repo.maven.apache.org/maven2/"),
-                new URL("http://0install.de/maven/"));
-        feedBuilder.addMetadata(thisProject.getOriginalModel());
+        final FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
+        feedBuilder.addMetadata(thisProject.getModel());
+        feedBuilder.addLocalImplementation(thisProject.getModel());
         return feedBuilder.getDocument();
     }
 
