@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Pattern;
 import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import org.apache.maven.model.Model;
 
@@ -12,6 +13,11 @@ import org.apache.maven.model.Model;
  * Utility class for creating interacting with Maven.
  */
 public final class MavenUtils {
+
+    /**
+     * A regular expression describing valid maven IDs.
+     */
+    private static final Pattern mavenIdPattern = Pattern.compile("^[A-Za-z0-9_\\.-]+$");
 
     private MavenUtils() {
     }
@@ -25,10 +31,8 @@ public final class MavenUtils {
      */
     public static String getServiceUrl(URL pom2feedService, String groupId, String artifactId) {
         checkNotNull(pom2feedService);
-        checkNotNull(groupId);
-        checkNotNull(artifactId);
-        checkArgument(groupId.matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(artifactId.matches("[A-Za-z0-9_\\.-]+"));
+        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
 
         return ensureSlashEnd(pom2feedService).toString()
                 + groupId.replace('.', '/') + '/'
@@ -47,10 +51,10 @@ public final class MavenUtils {
      */
     public static URL getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String fileType) {
         checkNotNull(mavenRepository);
-        checkArgument(checkNotNull(groupId).matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(checkNotNull(version).matches("[A-Za-z0-9_\\.-]+"));
-        checkNotNull(fileType);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(fileType)).matches());
 
         try {
             return new URL(ensureSlashEnd(mavenRepository).toString()
@@ -71,9 +75,9 @@ public final class MavenUtils {
      * @param fileType The file type to return (e.g. JAR or POM).
      */
     public static String getArtifactFileName(String artifactId, String version, String fileType) {
-        checkArgument(checkNotNull(artifactId).matches("[A-Za-z0-9_\\.-]+"));
-        checkArgument(checkNotNull(version).matches("[A-Za-z0-9_\\.-]+"));
-        checkNotNull(fileType);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(fileType)).matches());
 
         return artifactId + "-" + version + "." + fileType;
     }

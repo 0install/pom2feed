@@ -1,11 +1,17 @@
 package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.regex.Pattern;
 
 /**
  * Utility class with helper methods for Maven artifacts.
  */
 public final class ArtifactUtils {
+
+    /**
+     * A regular expression describing valid path parts.
+     */
+    private static final Pattern pathPartPattern = Pattern.compile("^[A-Za-z0-9_-]+$");
 
     private ArtifactUtils() {
     }
@@ -31,7 +37,7 @@ public final class ArtifactUtils {
 
         // Must only contain characters valid for Maven IDs minus the dot (.)
         for (String part : parts) {
-            if (!part.matches("[A-Za-z0-9_-]+")) {
+            if (!pathPartPattern.matcher(part).matches()) {
                 return false;
             }
         }
