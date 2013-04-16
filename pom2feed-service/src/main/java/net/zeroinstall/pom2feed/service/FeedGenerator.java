@@ -12,6 +12,7 @@ import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
+import static net.zeroinstall.pom2feed.core.UrlUtils.*;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -49,12 +50,8 @@ public class FeedGenerator implements FeedProvider {
      * @param signingBinaryThe command to execute in order to sign a feed file.
      */
     public FeedGenerator(URL mavenRepository, URL pom2feedService, String signingBinary) throws MalformedURLException {
-        this.mavenRepository = (mavenRepository.toString().endsWith("/"))
-                ? mavenRepository
-                : new URL(mavenRepository.toString() + "/");
-        this.pom2feedService = (pom2feedService.toString().endsWith("/"))
-                ? pom2feedService
-                : new URL(pom2feedService.toString() + "/");
+        this.mavenRepository = ensureSlashEnd(mavenRepository);
+        this.pom2feedService = ensureSlashEnd(pom2feedService);
         this.signingBinary = signingBinary;
     }
 

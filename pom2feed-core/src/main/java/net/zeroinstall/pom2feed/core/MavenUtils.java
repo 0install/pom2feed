@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import java.net.MalformedURLException;
 import java.net.URL;
+import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import org.apache.maven.model.Model;
 
 /**
@@ -29,12 +30,7 @@ public final class MavenUtils {
         checkArgument(groupId.matches("[A-Za-z0-9_\\.-]+"));
         checkArgument(artifactId.matches("[A-Za-z0-9_\\.-]+"));
 
-        String serviceString = pom2feedService.toString();
-        if (!serviceString.endsWith("/")) {
-            serviceString = serviceString + "/";
-        }
-
-        return serviceString
+        return ensureSlashEnd(pom2feedService).toString()
                 + groupId.replace('.', '/') + '/'
                 + artifactId.replace('.', '/') + '/';
     }
@@ -56,12 +52,8 @@ public final class MavenUtils {
         checkArgument(checkNotNull(version).matches("[A-Za-z0-9_\\.-]+"));
         checkNotNull(fileType);
 
-        String repositoryString = mavenRepository.toString();
-        if (!repositoryString.endsWith("/")) {
-            repositoryString = repositoryString + "/";
-        }
         try {
-            return new URL(repositoryString
+            return new URL(ensureSlashEnd(mavenRepository).toString()
                     + groupId.replace('.', '/') + '/'
                     + artifactId.replace('.', '/') + '/'
                     + version + '/'

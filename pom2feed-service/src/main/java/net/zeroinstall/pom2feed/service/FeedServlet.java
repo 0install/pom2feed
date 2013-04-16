@@ -1,6 +1,5 @@
 package net.zeroinstall.pom2feed.service;
 
-import com.google.common.base.Charsets;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.net.URL;
 import java.util.Scanner;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
+import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.xml.sax.SAXException;
 
@@ -41,8 +41,8 @@ public class FeedServlet extends HttpServlet {
 
     public FeedServlet() throws MalformedURLException, IOException {
         // Load configuration from Java system properties
-        this.serviceURL = new URL(System.getProperty("pom2feed-service.serviceURL", "http://localhost:8080/pom2feed/"));
-        URL mavenRepository = new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/"));
+        this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://localhost:8080/pom2feed/")));
+        URL mavenRepository = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
         String signCommand = System.getProperty("pom2feed-service.signCommand", "");
         String gpgKeyFile = System.getProperty("pom2feed-service.gpgKeyFile", "");
 

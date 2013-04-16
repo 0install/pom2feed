@@ -2,16 +2,13 @@ package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
 import static net.zeroinstall.pom2feed.core.FeedUtils.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
+import static net.zeroinstall.pom2feed.core.UrlUtils.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -191,25 +188,33 @@ public class FeedBuilder {
                 Xpp3Dom config = (Xpp3Dom) compilerPlugin.getConfiguration();
                 String javaVersion = config.getChild("target").getValue();
                 if (!isNullOrEmpty(javaVersion)) {
-                    net.zeroinstall.model.Dependency javaDep = implementation.addNewRequires();
-                    javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
-                    Constraint constraint = javaDep.addNewVersion2();
-                    constraint.setNotBefore(javaVersion);
+                    addJavaDependency(implementation, javaVersion);
                 }
             }
         }
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
             if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("compile") || mavenDep.getScope().equals("runtime")) {
-                net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-                ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-                ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
-
-                Environment environment = ziDep.addNewEnvironment();
-                environment.setName("CLASSPATH");
-                environment.setInsert(".");
+                addArtifactDependency(implementation, mavenDep);
             }
         }
+    }
+
+    private void addArtifactDependency(Implementation implementation, org.apache.maven.model.Dependency mavenDep) {
+        net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
+        ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
+        ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
+
+        Environment environment = ziDep.addNewEnvironment();
+        environment.setName("CLASSPATH");
+        environment.setInsert(".");
+    }
+
+    private void addJavaDependency(Implementation implementation, String javaVersion) {
+        net.zeroinstall.model.Dependency javaDep = implementation.addNewRequires();
+        javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
+        Constraint constraint = javaDep.addNewVersion2();
+        constraint.setNotBefore(javaVersion);
     }
 
     /**
@@ -221,14 +226,8 @@ public class FeedBuilder {
      */
     private void addFile(Implementation implementation, Model model) throws IOException {
         URL fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
-
-        HttpURLConnection connection = (HttpURLConnection) fileUrl.openConnection();
-        connection.setRequestMethod("HEAD");
-        long size = connection.getContentLength();
-
-        InputStream stream = new URL(fileUrl.toString() + ".sha1").openStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String hash = reader.readLine();
+        long size = getRemoteFileSize(fileUrl);
+        String hash = getRemoteLine(new URL(fileUrl.toString() + ".sha1"));
 
         String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
 
