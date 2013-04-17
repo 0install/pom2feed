@@ -31,8 +31,8 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     }
     //</editor-fold>
     //<editor-fold defaultstate="collapsed" desc="plugin parameters">
-    @Parameter(defaultValue = "${project.basedir}", property = "outputDir", required = true)
-    private File outputDirectory;
+    @Parameter(defaultValue = "${project.build.directory}", property = "feedDirectory", required = true)
+    private File feedDirectory;
     @Parameter(defaultValue = "${project.artifactId}", property = "feedName", required = true)
     private String feedName;
     @Parameter(defaultValue = "http://repo.maven.apache.org/maven2/", property = "mavenRepository", required = true)
@@ -55,11 +55,11 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      * it's not a directory.
      */
     private void ensureOutputDirectoryExists() throws MojoFailureException {
-        if (!outputDirectory.exists()) {
-            outputDirectory.mkdirs();
+        if (!feedDirectory.exists()) {
+            feedDirectory.mkdirs();
         }
-        if (!outputDirectory.isDirectory()) {
-            throw new MojoFailureException(String.format("\"%s is not a directory.\"", outputDirectory));
+        if (!feedDirectory.isDirectory()) {
+            throw new MojoFailureException(String.format("\"%s is not a directory.\"", feedDirectory));
         }
     }
 
@@ -73,12 +73,12 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
         final MavenProject thisProject = ((MavenProject) getPluginContext().get("project"));
         final FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
         feedBuilder.addMetadata(thisProject.getModel());
-        feedBuilder.addLocalImplementation(thisProject.getModel());
+        feedBuilder.addLocalImplementation(thisProject.getModel(), ".");
         return feedBuilder.getDocument();
     }
 
     /**
-     * Saves an Interface to {@link #outputDirectory} with the file name
+     * Saves an Interface to {@link #feedDirectory} with the file name
      * {@link #feedName}.xml.
      *
      * @param interfaceToSave The Interface to save.
@@ -86,7 +86,7 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      * while saving {@code interfaceToSave}.
      */
     private void saveInterfaceDocument(final InterfaceDocument interfaceToSave) throws MojoExecutionException {
-        final File file = new File(outputDirectory, feedName + DOT_XML);
+        final File file = new File(feedDirectory, feedName + DOT_XML);
         try {
             interfaceToSave.save(file, XML_WRITE_OPTIONS);
         } catch (final IOException exception) {

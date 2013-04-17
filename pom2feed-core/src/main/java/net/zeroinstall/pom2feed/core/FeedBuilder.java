@@ -9,7 +9,6 @@ import org.apache.maven.model.*;
 import static net.zeroinstall.pom2feed.core.FeedUtils.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
-import org.apache.xmlbeans.XmlCursor;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
@@ -41,11 +40,6 @@ public class FeedBuilder {
         this.pom2feedService = checkNotNull(pom2feedService);
         this.document = InterfaceDocument.Factory.newInstance();
         this.feed = document.addNewInterface();
-
-        // Add XSL stylesheet reference
-        XmlCursor cursor = this.document.newCursor();
-        cursor.toNextToken();
-        cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
     }
 
     /**
@@ -99,10 +93,12 @@ public class FeedBuilder {
      *
      * @param model The Maven model to extract the version and dependency
      * information from.
+     * @param directory The relative (Unix-stlye) path to the directory
+     * containing the implementation
      * @return The {@link FeedBuilder} instance for calling further methods in a
      * fluent fashion.
      */
-    public FeedBuilder addLocalImplementation(Model model) {
+    public FeedBuilder addLocalImplementation(Model model, String directory) {
         checkNotNull(model);
 
         Implementation implementation = addNewImplementation(model);
@@ -113,7 +109,7 @@ public class FeedBuilder {
             command.setPath(getArtifactLocalFileName(model));
         }
 
-        implementation.setLocalPath(".");
+        implementation.setLocalPath(checkNotNull(directory));
         return this;
     }
 
@@ -126,7 +122,7 @@ public class FeedBuilder {
      * @return The {@link FeedBuilder} instance for calling further methods in a
      * fluent fashion.
      */
-    public FeedBuilder addRemoteImplementation(Model model) throws IOException {
+    public FeedBuilder addRemoteImplementation(Model model) {
         checkNotNull(model);
 
         Implementation implementation = addNewImplementation(model);
@@ -137,7 +133,10 @@ public class FeedBuilder {
             command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), "jar"));
         }
 
-        addFile(implementation, model);
+        try {
+            addFile(implementation, model);
+        } catch (IOException ex) {
+        }
         return this;
     }
 
@@ -153,6 +152,7 @@ public class FeedBuilder {
         Implementation implementation = feed.addNewImplementation();
         implementation.setId(model.getVersion());
         implementation.setVersion(pom2feedVersion(model.getVersion()));
+        implementation.setStability(Stability.STABLE);
         if (!model.getLicenses().isEmpty()) {
             implementation.setLicense(model.getLicenses().get(0).getName());
         }
@@ -186,9 +186,11 @@ public class FeedBuilder {
             Plugin compilerPlugin = model.getBuild().getPluginsAsMap().get("org.apache.maven.plugins:maven-compiler-plugin");
             if (compilerPlugin != null) {
                 Xpp3Dom config = (Xpp3Dom) compilerPlugin.getConfiguration();
-                String javaVersion = config.getChild("target").getValue();
-                if (!isNullOrEmpty(javaVersion)) {
-                    addJavaDependency(implementation, javaVersion);
+                if (config != null) {
+                    Xpp3Dom targetConfig = config.getChild("target");
+                    if (targetConfig != null && !isNullOrEmpty(targetConfig.getValue())) {
+                        addJavaDependency(implementation, targetConfig.getValue());
+                    }
                 }
             }
         }

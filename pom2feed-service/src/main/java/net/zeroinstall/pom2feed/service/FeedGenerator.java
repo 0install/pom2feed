@@ -18,6 +18,7 @@ import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
 import org.xml.sax.SAXException;
 
@@ -62,7 +63,7 @@ public class FeedGenerator implements FeedProvider {
 
         File tempFile = File.createTempFile("pom2feed-service", ".xml");
         try {
-            feed.save(tempFile, new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
+            saveFeed(feed, tempFile);
             signFeed(tempFile.getPath());
             return Files.toString(tempFile, Charsets.UTF_8);
         } finally {
@@ -70,11 +71,14 @@ public class FeedGenerator implements FeedProvider {
         }
     }
 
-    private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException, IOException {
+    private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
         feedBuilder.addMetadata(getModel(metadata, metadata.getLatestVersion()));
         for (String version : metadata.getVersions()) {
-            feedBuilder.addRemoteImplementation(getModel(metadata, version));
+            try {
+                feedBuilder.addRemoteImplementation(getModel(metadata, version));
+            } catch (ModelBuildingException ex) {
+            }
         }
         return feedBuilder.getDocument();
     }
@@ -88,6 +92,15 @@ public class FeedGenerator implements FeedProvider {
 
         return new DefaultModelBuilderFactory().newInstance().
                 build(request).getEffectiveModel();
+    }
+
+    private void saveFeed(InterfaceDocument feed, File tempFile) throws IOException {
+        // Add XSL stylesheet reference
+        XmlCursor cursor = feed.newCursor();
+        cursor.toNextToken();
+        cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
+
+        feed.save(tempFile, new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
     }
 
     private class RepositoryModelResolver implements ModelResolver {

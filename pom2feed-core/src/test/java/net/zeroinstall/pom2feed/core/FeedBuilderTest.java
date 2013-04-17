@@ -24,12 +24,6 @@ public class FeedBuilderTest {
     }
 
     @Test
-    public void testXslStylesheet() {
-        String xmlText = builder.getDocument().xmlText();
-        assertTrue(xmlText.contains("<?xml-stylesheet type='text/xsl' href='interface.xsl'?>"));
-    }
-
-    @Test
     public void testAddMetadata() {
         Model model = new Model();
         model.setName("Name");
@@ -51,12 +45,12 @@ public class FeedBuilderTest {
         model.setPackaging("jar");
         model.setVersion("1.0");
 
-        Implementation impl = builder.addLocalImplementation(model).
+        Implementation impl = builder.addLocalImplementation(model, "dir").
                 getDocument().getInterface().getImplementationArray(0);
 
         assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
-        assertEquals(".", impl.getLocalPath());
+        assertEquals("dir", impl.getLocalPath());
         assertEquals("artifact.jar", impl.getCommandArray(0).getPath());
     }
 
@@ -69,12 +63,12 @@ public class FeedBuilderTest {
         model.setPackaging("war");
         model.setVersion("1.0");
 
-        Implementation impl = builder.addLocalImplementation(model).
+        Implementation impl = builder.addLocalImplementation(model, "dir").
                 getDocument().getInterface().getImplementationArray(0);
 
         assertEquals("1.0", impl.getId());
         assertEquals("1.0", impl.getVersion());
-        assertEquals(".", impl.getLocalPath());
+        assertEquals("dir", impl.getLocalPath());
         assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
     }
 
@@ -101,7 +95,7 @@ public class FeedBuilderTest {
         testDependency.setScope("test");
         model.addDependency(testDependency);
 
-        Implementation impl = builder.addLocalImplementation(model).
+        Implementation impl = builder.addLocalImplementation(model, "dir").
                 getDocument().getInterface().getImplementationArray(0);
 
         assertEquals("http://0install.de/maven/dependency-group/dependency-artifact/", impl.getRequiresArray(0).getInterface());
@@ -110,7 +104,7 @@ public class FeedBuilderTest {
     }
 
     @Test
-    public void testAddRemoteImplementation() throws IOException {
+    public void testAddRemoteImplementation() {
         Model model = new Model();
         model.setGroupId("group");
         model.setArtifactId("artifact");
@@ -134,7 +128,7 @@ public class FeedBuilderTest {
     }
 
     @Test
-    public void testAddRemoteImplementationNonJar() throws IOException {
+    public void testAddRemoteImplementationNonJar() {
         Model model = new Model();
         model.setGroupId("group");
         model.setArtifactId("artifact");
