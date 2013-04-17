@@ -77,7 +77,7 @@ public class FeedBuilder {
         checkNotNull(model);
 
         feed.addName(model.getName());
-        feed.addNewSummary().setStringValue("Auto-generated feed for " + model.getGroupId() + "." + model.getArtifactId());
+        feed.addNewSummary().setStringValue("Apache Mavne artifact " + model.getGroupId() + ":" + model.getArtifactId());
         if (!isNullOrEmpty(model.getDescription())) {
             feed.addNewDescription().setStringValue(model.getDescription());
         }
@@ -108,8 +108,8 @@ public class FeedBuilder {
             Command command = addNewCommand(implementation);
             command.setPath(getArtifactLocalFileName(model));
         }
-
         implementation.setLocalPath(checkNotNull(directory));
+
         return this;
     }
 
@@ -121,22 +121,27 @@ public class FeedBuilder {
      * information from.
      * @return The {@link FeedBuilder} instance for calling further methods in a
      * fluent fashion.
+     * @throws IOException A file could not be retrieved from the Maven
+     * repository.
      */
-    public FeedBuilder addRemoteImplementation(Model model) {
+    public FeedBuilder addRemoteImplementation(Model model) throws IOException {
         checkNotNull(model);
 
         Implementation implementation = addNewImplementation(model);
         addDependencies(implementation, model);
 
+        try {
+            addFile(implementation, model);
+        } catch (IOException ex) {
+            // Remove incomplete implementation
+            feed.removeImplementation(feed.getImplementationArray().length - 1);
+            throw ex;
+        }
         if (model.getPackaging().equals("jar")) {
             Command command = addNewCommand(implementation);
             command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), "jar"));
         }
 
-        try {
-            addFile(implementation, model);
-        } catch (IOException ex) {
-        }
         return this;
     }
 
@@ -224,7 +229,8 @@ public class FeedBuilder {
      *
      * @param implementation The implementation to add the download entry to.
      * @param model The Maven model describing the artifact.
-     * @throws IOException
+     * @throws IOException A file could not be retrieved from the Maven
+     * repository.
      */
     private void addFile(Implementation implementation, Model model) throws IOException {
         URL fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());

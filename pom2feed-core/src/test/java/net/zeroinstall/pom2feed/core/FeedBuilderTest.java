@@ -9,6 +9,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static net.zeroinstall.pom2feed.core.FeedUtils.getSha1ManifestDigest;
 
 public class FeedBuilderTest {
@@ -104,7 +106,7 @@ public class FeedBuilderTest {
     }
 
     @Test
-    public void testAddRemoteImplementation() {
+    public void testAddRemoteImplementation() throws IOException {
         Model model = new Model();
         model.setGroupId("group");
         model.setArtifactId("artifact");
@@ -128,7 +130,7 @@ public class FeedBuilderTest {
     }
 
     @Test
-    public void testAddRemoteImplementationNonJar() {
+    public void testAddRemoteImplementationNonJar() throws IOException {
         Model model = new Model();
         model.setGroupId("group");
         model.setArtifactId("artifact");
@@ -149,5 +151,31 @@ public class FeedBuilderTest {
         assertEquals("1.0", impl.getVersion());
         assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
         assertEquals(0, impl.getCommandArray().length); // No command for non-JAR
+    }
+
+    @Test
+    public void testAddRemoteImplementationMissing() {
+        Model model = new Model();
+        model.setGroupId("group");
+        model.setArtifactId("artifact");
+        model.setPackaging("war");
+        model.setVersion("1.0");
+        stubFor(head(urlEqualTo("/group/artifact/1.0/artifact-1.0.war")).
+                willReturn(aResponse().withStatus(404)));
+        stubFor(get(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")).
+                willReturn(aResponse().withStatus(404)));
+
+        boolean thrown = false;
+        try {
+            builder.addRemoteImplementation(model);
+        } catch (IOException ex) {
+            thrown = true;
+        }
+        assertTrue(thrown);
+        Feed feed = builder.getDocument().getInterface();
+
+        verify(headRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war")));
+        verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")));
+        assertEquals(0, feed.getImplementationArray().length);
     }
 }

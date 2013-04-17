@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
@@ -78,6 +80,9 @@ public class FeedGenerator implements FeedProvider {
             try {
                 feedBuilder.addRemoteImplementation(getModel(metadata, version));
             } catch (ModelBuildingException ex) {
+                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
             }
         }
         return feedBuilder.getDocument();
