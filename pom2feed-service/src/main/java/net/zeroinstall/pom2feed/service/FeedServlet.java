@@ -108,10 +108,12 @@ public class FeedServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         try {
             resp.getWriter().write(feedProvider.getFeed(artifactPath));
+        } catch (IOException ex) {
+            resp.sendError(404, "Not a valid Maven artifact");
         } catch (SAXException ex) {
-            throw new IOException(ex);
+            resp.sendError(500, "Maven versioning metadata invalid");
         } catch (ModelBuildingException ex) {
-            throw new IOException(ex);
+            resp.sendError(404, "Maven project metadata invalid");
         }
     }
 
