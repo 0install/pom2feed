@@ -2,6 +2,7 @@ package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.base.Throwables.*;
 import com.google.common.cache.*;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,11 @@ public class FeedCache implements FeedProvider {
             propagateIfInstanceOf(ex.getCause(), SAXException.class);
             propagateIfInstanceOf(ex.getCause(), ModelBuildingException.class);
             throw propagate(ex);
+        } catch (UncheckedExecutionException ex) {
+            propagateIfInstanceOf(ex.getCause(), IOException.class);
+            propagateIfInstanceOf(ex.getCause(), SAXException.class);
+            propagateIfInstanceOf(ex.getCause(), ModelBuildingException.class);
+            throw ex;
         }
     }
 }
