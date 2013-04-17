@@ -6,9 +6,7 @@ import com.google.common.base.Throwables;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Hex;
 
@@ -65,6 +63,7 @@ final class FeedUtils {
         {"cr", "rc"},
         {"ga", "0"},
         {"final", "0"},
+        {"rev", "post-"},
         {"sp", "post"}
     };
 
@@ -82,7 +81,11 @@ final class FeedUtils {
             part = convertToAsciiNumbers(part);
         }
 
-        return prefix + part;
+        if (prefix.endsWith("-") && part.equals("")) {
+            return prefix.substring(0, prefix.length() - 1);
+        } else {
+            return prefix + part;
+        }
     }
 
     public static String convertToAsciiNumbers(String value) {

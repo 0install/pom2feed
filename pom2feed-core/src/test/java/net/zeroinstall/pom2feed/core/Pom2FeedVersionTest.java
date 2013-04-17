@@ -23,6 +23,7 @@ public class Pom2FeedVersionTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
             {"1.0-2", "1.0-2"},
+            {"1.0-snapshot", "1.0-pre"},
             {"1.0-snapshot123", "1.0-pre-123"},
             {"1.0-alpha123", "1.0-pre1-123"},
             {"1.0-a123", "1.0-pre1-123"},
@@ -36,6 +37,7 @@ public class Pom2FeedVersionTest {
             {"1.0-cr123", "1.0-rc123"},
             {"1.0-ga", "1.0-0"},
             {"1.0-final", "1.0-0"},
+            {"1.0-rev123", "1.0-post-123"},
             {"1.0-sp123", "1.0-post123"},
             {"1.0-xyz", "1.0-120121122"},
             {"rc123", "1-rc123"},
