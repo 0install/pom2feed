@@ -84,14 +84,14 @@ public class FeedBuilderTest {
         org.apache.maven.model.Dependency dependency = new org.apache.maven.model.Dependency();
         dependency.setGroupId("dependency-group");
         dependency.setArtifactId("dependency-artifact");
-        dependency.setVersion("2.0");
+        dependency.setVersion("[2.0,3.0)");
         dependency.setScope("compile");
         model.addDependency(dependency);
 
         org.apache.maven.model.Dependency testDependency = new org.apache.maven.model.Dependency();
         testDependency.setGroupId("dependency-group");
         testDependency.setArtifactId("dependency-artifact");
-        testDependency.setVersion("2.0");
+        testDependency.setVersion("[2.0,3.0)");
         testDependency.setScope("test");
         model.addDependency(testDependency);
 
@@ -99,7 +99,7 @@ public class FeedBuilderTest {
                 getDocument().getInterface().getImplementationArray(0);
 
         assertEquals("http://0install.de/maven/dependency-group/dependency-artifact/", impl.getRequiresArray(0).getInterface());
-        assertEquals("2.0", impl.getRequiresArray(0).getVersion());
+        assertEquals("2.0..!3.0", impl.getRequiresArray(0).getVersion());
         assertEquals(1, impl.getRequiresArray().length); // No requirement for test-only dependencies
     }
 

@@ -89,4 +89,61 @@ final class VersionUtils {
         }
         return builder.toString();
     }
+
+    /**
+     * Converts a Maven version range string into a Zero Install version range
+     * string.
+     */
+    public static String pom2feedVersionRange(String pomVersionRange) {
+        StringBuilder result = new StringBuilder();
+
+        boolean inInterval = false;
+        boolean leftOpen = false;
+        StringBuilder version = new StringBuilder();
+        for (char c : pomVersionRange.toCharArray()) {
+            if (c == '[') {
+                inInterval = true;
+                leftOpen = false;
+            } else if (c == '(') {
+                inInterval = true;
+                leftOpen = true;
+            } else if (c == ')') {
+                inInterval = false;
+                if (version.length() > 0) {
+                    result.append("!").append(pom2feedVersion(version.toString()));
+                    version = new StringBuilder();
+                }
+            } else if (c == ']') {
+                inInterval = false;
+                if (version.length() > 0) {
+                    result.append("!").append(pom2feedVersion(version.toString())).append("-post");
+                    version = new StringBuilder();
+                }
+            } else if (c == ',') {
+                if (inInterval) {
+                    if (version.length() > 0) {
+                        result.append(pom2feedVersion(version.toString()));
+                        version = new StringBuilder();
+                        if (leftOpen) {
+                            result.append("-post");
+                        }
+                    }
+                    result.append("..");
+                } else {
+                    if (version.length() > 0) {
+                        result.append(pom2feedVersion(version.toString()));
+                        version = new StringBuilder();
+                    }
+                    result.append("|");
+                }
+            } else {
+                version.append(c);
+            }
+        }
+        if (version.length() > 0) {
+            result.append(pom2feedVersion(version.toString()));
+        }
+
+        return result.toString();
+    }
 }

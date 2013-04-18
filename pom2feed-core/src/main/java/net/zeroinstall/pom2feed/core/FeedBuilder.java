@@ -211,7 +211,7 @@ public class FeedBuilder {
         if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("compile") || mavenDep.getScope().equals("runtime")) {
             net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
             ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-            ziDep.setVersion(pom2feedVersion(mavenDep.getVersion()));
+            ziDep.setVersion(pom2feedVersionRange(mavenDep.getVersion()));
             if ("true".equals(mavenDep.getOptional())) {
                 ziDep.setImportance(Importance.RECOMMENDED);
             }
