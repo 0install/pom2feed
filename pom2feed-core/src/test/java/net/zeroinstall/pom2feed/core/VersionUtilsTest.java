@@ -7,14 +7,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import static net.zeroinstall.pom2feed.core.FeedUtils.pom2feedVersion;
+import static net.zeroinstall.pom2feed.core.VersionUtils.*;
 
 @RunWith(value = Parameterized.class)
-public class Pom2FeedVersionTest {
+public class VersionUtilsTest {
 
     private final String mavenVersion, ziVersion;
 
-    public Pom2FeedVersionTest(String mavenVersion, String ziVersion) {
+    public VersionUtilsTest(String mavenVersion, String ziVersion) {
         this.mavenVersion = mavenVersion;
         this.ziVersion = ziVersion;
     }
@@ -23,6 +23,7 @@ public class Pom2FeedVersionTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
             {"1.0-2", "1.0-2"},
+            {" 1.0-2 ", "1.0-2"},
             {"1.0-snapshot", "1.0-pre"},
             {"1.0-snapshot123", "1.0-pre-123"},
             {"1.0-alpha123", "1.0-pre1-123"},
@@ -46,7 +47,12 @@ public class Pom2FeedVersionTest {
     }
 
     @Test
-    public void test() {
+    public void testPom2feedVersion() {
         assertEquals(ziVersion, pom2feedVersion(mavenVersion));
+    }
+
+    @Test
+    public void testConvertToAsciiNumbers() {
+        assertEquals("097098099", convertToAsciiNumbers("abc"));
     }
 }

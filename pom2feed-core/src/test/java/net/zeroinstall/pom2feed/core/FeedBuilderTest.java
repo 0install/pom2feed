@@ -9,9 +9,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static net.zeroinstall.pom2feed.core.FeedUtils.getSha1ManifestDigest;
+import static net.zeroinstall.pom2feed.core.ManifestUtils.*;
 
 public class FeedBuilderTest {
 

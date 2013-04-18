@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.net.URL;
 import net.zeroinstall.model.*;
 import org.apache.maven.model.*;
-import static net.zeroinstall.pom2feed.core.FeedUtils.*;
+import static net.zeroinstall.pom2feed.core.VersionUtils.*;
+import static net.zeroinstall.pom2feed.core.ManifestUtils.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -210,7 +211,7 @@ public class FeedBuilder {
     private void addArtifactDependency(Implementation implementation, org.apache.maven.model.Dependency mavenDep) {
         net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
         ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-        ziDep.setVersion(FeedUtils.pom2feedVersion(mavenDep.getVersion()));
+        ziDep.setVersion(pom2feedVersion(mavenDep.getVersion()));
 
         Environment environment = ziDep.addNewEnvironment();
         environment.setName("CLASSPATH");
