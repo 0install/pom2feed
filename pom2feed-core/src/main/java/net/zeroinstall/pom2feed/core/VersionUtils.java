@@ -20,7 +20,7 @@ final class VersionUtils {
     /**
      * Converts a Maven version string into a Zero Install version string.
      */
-    public static String pom2feedVersion(String mavenVersion) {
+    public static String convertVersion(String mavenVersion) {
         String[] parts = checkNotNull(mavenVersion.trim()).split("-");
         StringBuilder ziVersion = new StringBuilder();
 
@@ -94,7 +94,7 @@ final class VersionUtils {
      * Converts a Maven version range string into a Zero Install version range
      * string.
      */
-    public static String pom2feedVersionRange(String pomVersionRange) {
+    public static String convertRange(String pomVersionRange) {
         StringBuilder result = new StringBuilder();
 
         boolean inInterval = false;
@@ -110,19 +110,19 @@ final class VersionUtils {
             } else if (c == ')') {
                 inInterval = false;
                 if (version.length() > 0) {
-                    result.append("!").append(pom2feedVersion(version.toString()));
+                    result.append("!").append(convertVersion(version.toString()));
                     version = new StringBuilder();
                 }
             } else if (c == ']') {
                 inInterval = false;
                 if (version.length() > 0) {
-                    result.append("!").append(pom2feedVersion(version.toString())).append("-post");
+                    result.append("!").append(convertVersion(version.toString())).append("-post");
                     version = new StringBuilder();
                 }
             } else if (c == ',') {
                 if (inInterval) {
                     if (version.length() > 0) {
-                        result.append(pom2feedVersion(version.toString()));
+                        result.append(convertVersion(version.toString()));
                         version = new StringBuilder();
                         if (leftOpen) {
                             result.append("-post");
@@ -131,7 +131,7 @@ final class VersionUtils {
                     result.append("..");
                 } else {
                     if (version.length() > 0) {
-                        result.append(pom2feedVersion(version.toString()));
+                        result.append(convertVersion(version.toString()));
                         version = new StringBuilder();
                     }
                     result.append("|");
@@ -141,7 +141,7 @@ final class VersionUtils {
             }
         }
         if (version.length() > 0) {
-            result.append(pom2feedVersion(version.toString()));
+            result.append(convertVersion(version.toString()));
         }
 
         return result.toString();

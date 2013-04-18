@@ -47,8 +47,8 @@ public class VersionUtilsTest {
     }
 
     @Test
-    public void testPom2feedVersion() {
-        assertEquals(ziVersion, pom2feedVersion(mavenVersion));
+    public void testConvertVersion() {
+        assertEquals(ziVersion, convertVersion(mavenVersion));
     }
 
     @Test

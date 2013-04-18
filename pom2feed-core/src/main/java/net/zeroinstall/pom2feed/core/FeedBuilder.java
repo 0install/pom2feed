@@ -157,7 +157,7 @@ public class FeedBuilder {
     private Implementation addNewImplementation(Model model) {
         Implementation implementation = feed.addNewImplementation();
         implementation.setId(model.getVersion());
-        implementation.setVersion(pom2feedVersion(model.getVersion()));
+        implementation.setVersion(convertVersion(model.getVersion()));
         implementation.setStability(Stability.STABLE);
         if (!model.getLicenses().isEmpty()) {
             implementation.setLicense(model.getLicenses().get(0).getName());
@@ -211,7 +211,7 @@ public class FeedBuilder {
         if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("compile") || mavenDep.getScope().equals("runtime")) {
             net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
             ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-            ziDep.setVersion(pom2feedVersionRange(mavenDep.getVersion()));
+            ziDep.setVersion(convertRange(mavenDep.getVersion()));
             if ("true".equals(mavenDep.getOptional())) {
                 ziDep.setImportance(Importance.RECOMMENDED);
             }

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import static net.zeroinstall.pom2feed.core.VersionUtils.pom2feedVersionRange;
+import static net.zeroinstall.pom2feed.core.VersionUtils.convertRange;
 
 @RunWith(value = Parameterized.class)
 public class VersionUtilsRangeTest {
@@ -41,7 +41,7 @@ public class VersionUtilsRangeTest {
     }
 
     @Test
-    public void testPom2feedVersionRange() {
-        assertEquals(ziRange, pom2feedVersionRange(mavenRange));
+    public void testConvertRange() {
+        assertEquals(ziRange, convertRange(mavenRange));
     }
 }
