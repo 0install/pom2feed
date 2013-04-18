@@ -78,7 +78,7 @@ public class FeedBuilder {
         checkNotNull(model);
 
         feed.addName(model.getName());
-        feed.addNewSummary().setStringValue("Apache Mavne artifact " + model.getGroupId() + ":" + model.getArtifactId());
+        feed.addNewSummary().setStringValue("Maven artifact " + model.getGroupId() + ":" + model.getArtifactId());
         if (!isNullOrEmpty(model.getDescription())) {
             feed.addNewDescription().setStringValue(model.getDescription());
         }
