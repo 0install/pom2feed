@@ -47,21 +47,21 @@ public final class MavenUtils {
      * @param groupId The artifact ID.
      * @param artifactId The artifact ID.
      * @param version The artifact version.
-     * @param fileType The file type to return (e.g. JAR or POM).
+     * @param packaging The file type to return (e.g. JAR or POM).
      */
-    public static URL getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String fileType) {
+    public static URL getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String packaging) {
         checkNotNull(mavenRepository);
         checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches());
         checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
         checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(fileType)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches());
 
         try {
             return new URL(ensureSlashEnd(mavenRepository).toString()
                     + groupId.replace('.', '/') + '/'
                     + artifactId.replace('.', '/') + '/'
                     + version + '/'
-                    + getArtifactFileName(artifactId, version, fileType));
+                    + getArtifactFileName(artifactId, version, packaging));
         } catch (MalformedURLException ex) {
             throw propagate(ex);
         }
@@ -72,14 +72,14 @@ public final class MavenUtils {
      *
      * @param artifactId The artifact ID.
      * @param version The artifact version.
-     * @param fileType The file type to return (e.g. JAR or POM).
+     * @param packaging The file type to return (e.g. JAR or POM).
      */
-    public static String getArtifactFileName(String artifactId, String version, String fileType) {
+    public static String getArtifactFileName(String artifactId, String version, String packaging) {
         checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
         checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(fileType)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches());
 
-        return artifactId + "-" + version + "." + fileType;
+        return artifactId + "-" + version + "." + packaging.replace("maven-plugin", "jar");
     }
 
     /**

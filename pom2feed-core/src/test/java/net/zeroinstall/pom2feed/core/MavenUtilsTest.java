@@ -23,6 +23,8 @@ public class MavenUtilsTest {
     @Test
     public void testGetArtifactFileName() {
         assertEquals("artifact.subartifact-1.0.jar", getArtifactFileName("artifact.subartifact", "1.0", "jar"));
+        assertEquals("artifact.subartifact-1.0.war", getArtifactFileName("artifact.subartifact", "1.0", "war"));
+        assertEquals("artifact.subartifact-1.0.jar", getArtifactFileName("artifact.subartifact", "1.0", "maven-plugin"));
     }
 
     @Test
