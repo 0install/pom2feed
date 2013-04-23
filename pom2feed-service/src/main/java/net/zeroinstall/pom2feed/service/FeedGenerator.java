@@ -3,6 +3,7 @@ package net.zeroinstall.pom2feed.service;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -80,7 +81,7 @@ public class FeedGenerator implements FeedProvider {
         addImplementationsToFeed(metadata, feedBuilder);
         return feedBuilder.getDocument();
     }
-    
+
     private void addMetadataToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) throws ModelBuildingException {
         Model latestModel = getModel(metadata, metadata.getLatestVersion());
         feedBuilder.addMetadata(latestModel);
@@ -103,8 +104,10 @@ public class FeedGenerator implements FeedProvider {
                 metadata.getGroupId(), metadata.getArtifactId(), version, "pom"));
         ModelBuildingRequest request = new DefaultModelBuildingRequest()
                 .setModelSource(modelSource)
-                .setModelResolver(new RepositoryModelResolver());
-        
+                .setModelResolver(new RepositoryModelResolver())
+                // Special cases
+                .setInactiveProfileIds(newArrayList("java-1.5-detected")); // Apache Commons
+
         ModelBuilder builder = new DefaultModelBuilderFactory().newInstance();
         return builder.build(request).getEffectiveModel();
     }
