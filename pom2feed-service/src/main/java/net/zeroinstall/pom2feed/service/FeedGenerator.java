@@ -65,6 +65,7 @@ public class FeedGenerator implements FeedProvider {
 
         File tempFile = File.createTempFile("pom2feed-service", ".xml");
         try {
+            addStylesheet(feed);
             saveFeed(feed, tempFile);
             signFeed(tempFile.getPath());
             return Files.toString(tempFile, Charsets.UTF_8);
@@ -75,7 +76,17 @@ public class FeedGenerator implements FeedProvider {
 
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
-        feedBuilder.addMetadata(getModel(metadata, metadata.getLatestVersion()));
+        addMetadataToFeed(metadata, feedBuilder);
+        addImplementationsToFeed(metadata, feedBuilder);
+        return feedBuilder.getDocument();
+    }
+    
+    private void addMetadataToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) throws ModelBuildingException {
+        Model latestModel = getModel(metadata, metadata.getLatestVersion());
+        feedBuilder.addMetadata(latestModel);
+    }
+
+    private void addImplementationsToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) {
         for (String version : metadata.getVersions()) {
             try {
                 feedBuilder.addRemoteImplementation(getModel(metadata, version));
@@ -85,7 +96,6 @@ public class FeedGenerator implements FeedProvider {
                 Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
             }
         }
-        return feedBuilder.getDocument();
     }
 
     private Model getModel(MavenMetadata metadata, String version) throws ModelBuildingException {
@@ -99,12 +109,13 @@ public class FeedGenerator implements FeedProvider {
                 build(request).getEffectiveModel();
     }
 
-    private void saveFeed(InterfaceDocument feed, File tempFile) throws IOException {
-        // Add XSL stylesheet reference
+    private void addStylesheet(InterfaceDocument feed) {
         XmlCursor cursor = feed.newCursor();
         cursor.toNextToken();
         cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
+    }
 
+    private void saveFeed(InterfaceDocument feed, File tempFile) throws IOException {
         feed.save(tempFile, new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
     }
 
