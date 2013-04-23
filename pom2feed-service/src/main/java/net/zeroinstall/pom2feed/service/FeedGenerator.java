@@ -101,12 +101,12 @@ public class FeedGenerator implements FeedProvider {
     private Model getModel(MavenMetadata metadata, String version) throws ModelBuildingException {
         UrlModelSource modelSource = new UrlModelSource(getArtifactFileUrl(mavenRepository,
                 metadata.getGroupId(), metadata.getArtifactId(), version, "pom"));
-        ModelBuildingRequest request = new DefaultModelBuildingRequest();
-        request.setModelSource(modelSource);
-        request.setModelResolver(new RepositoryModelResolver());
-
-        return new DefaultModelBuilderFactory().newInstance().
-                build(request).getEffectiveModel();
+        ModelBuildingRequest request = new DefaultModelBuildingRequest()
+                .setModelSource(modelSource)
+                .setModelResolver(new RepositoryModelResolver());
+        
+        ModelBuilder builder = new DefaultModelBuilderFactory().newInstance();
+        return builder.build(request).getEffectiveModel();
     }
 
     private void addStylesheet(InterfaceDocument feed) {
