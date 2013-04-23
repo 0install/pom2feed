@@ -41,7 +41,7 @@ public class FeedServlet extends HttpServlet {
 
     public FeedServlet() throws MalformedURLException, IOException {
         // Load configuration from Java system properties
-        this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/pom2feed-service/")));
+        this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
         URL mavenRepository = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
         String signCommand = System.getProperty("pom2feed-service.signCommand", "");
         String gpgKeyFile = System.getProperty("pom2feed-service.gpgKeyFile", "");
