@@ -18,7 +18,7 @@ public class FeedGeneratorTest {
     public FeedGeneratorTest() throws MalformedURLException {
         this.feedGenerator = new FeedGenerator(
                 new URL("http://localhost:8089/"),
-                new URL("http://0install.de/maven/"),
+                new URL("http://maven.0install.net/"),
                 null);
     }
 

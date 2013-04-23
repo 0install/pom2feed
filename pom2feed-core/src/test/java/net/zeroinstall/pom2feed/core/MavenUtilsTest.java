@@ -13,11 +13,11 @@ public class MavenUtilsTest {
     @Test
     public void testGetServiceUrl() throws MalformedURLException {
         assertEquals(
-                "http://0install.de/maven/group/subgroup/artifact/subartifact/",
-                getServiceUrl(new URL("http://0install.de/maven"), "group.subgroup", "artifact.subartifact"));
+                "http://maven.0install.net/group/subgroup/artifact/subartifact/",
+                getServiceUrl(new URL("http://maven.0install.net"), "group.subgroup", "artifact.subartifact"));
         assertEquals(
-                "http://0install.de/maven/group/subgroup/artifact/subartifact/",
-                getServiceUrl(new URL("http://0install.de/maven/"), "group.subgroup", "artifact.subartifact"));
+                "http://maven.0install.net/group/subgroup/artifact/subartifact/",
+                getServiceUrl(new URL("http://maven.0install.net/"), "group.subgroup", "artifact.subartifact"));
     }
 
     @Test
@@ -55,10 +55,10 @@ public class MavenUtilsTest {
     @Test
     public void testGetArtifactFileUrl() throws MalformedURLException {
         assertEquals(
-                new URL("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
-                getArtifactFileUrl(new URL("http://0install.de/maven"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
+                new URL("http://maven.0install.net/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
+                getArtifactFileUrl(new URL("http://maven.0install.net"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
         assertEquals(
-                new URL("http://0install.de/maven/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
-                getArtifactFileUrl(new URL("http://0install.de/maven/"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
+                new URL("http://maven.0install.net/group/subgroup/artifact/subartifact/1.0/artifact.subartifact-1.0.pom"),
+                getArtifactFileUrl(new URL("http://maven.0install.net/"), "group.subgroup", "artifact.subartifact", "1.0", "pom"));
     }
 }

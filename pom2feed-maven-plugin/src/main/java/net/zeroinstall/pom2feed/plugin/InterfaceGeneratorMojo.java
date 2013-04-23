@@ -37,7 +37,7 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     private String feedName;
     @Parameter(defaultValue = "http://repo.maven.apache.org/maven2/", property = "mavenRepository", required = true)
     private URL mavenRepository;
-    @Parameter(defaultValue = "http://0install.de/maven/", property = "pom2feedService", required = true)
+    @Parameter(defaultValue = "http://maven.0install.net/", property = "pom2feedService", required = true)
     private URL pom2feedService;
     //</editor-fold>
 

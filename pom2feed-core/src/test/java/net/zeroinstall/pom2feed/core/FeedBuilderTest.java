@@ -20,7 +20,7 @@ public class FeedBuilderTest {
     public FeedBuilderTest() throws MalformedURLException {
         this.builder = new FeedBuilder(
                 new URL("http://localhost:8089/"),
-                new URL("http://0install.de/maven/"));
+                new URL("http://maven.0install.net/"));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class FeedBuilderTest {
         Implementation impl = builder.addLocalImplementation(model, "dir").
                 getDocument().getInterface().getImplementationArray(0);
 
-        assertEquals("http://0install.de/maven/dependency-group/dependency-artifact/", impl.getRequiresArray(0).getInterface());
+        assertEquals("http://maven.0install.net/dependency-group/dependency-artifact/", impl.getRequiresArray(0).getInterface());
         assertEquals("2.0..!3.0", impl.getRequiresArray(0).getVersion());
         assertEquals(1, impl.getRequiresArray().length); // No requirement for test-only dependencies
     }
