@@ -17,7 +17,8 @@ public class FeedBuilderTest {
     public WireMockRule wireMockRule = new WireMockRule(8089);
     private FeedBuilder builder;
 
-    public FeedBuilderTest() throws MalformedURLException {
+    @Before
+    public void before() throws MalformedURLException {
         this.builder = new FeedBuilder(
                 new URL("http://localhost:8089/"),
                 new URL("http://maven.0install.net/"));
