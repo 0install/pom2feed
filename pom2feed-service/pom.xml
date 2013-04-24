@@ -21,6 +21,7 @@
     </properties>
 
     <build>
+        <finalName>pom2feed-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
