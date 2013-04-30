@@ -79,7 +79,10 @@ public class FeedGenerator implements FeedProvider {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
         addMetadataToFeed(metadata, feedBuilder);
         addImplementationsToFeed(metadata, feedBuilder);
-        return feedBuilder.getDocument();
+        
+        InterfaceDocument feed = feedBuilder.getDocument();
+        feed.getInterface().setUri(getServiceUrl(pom2feedService, metadata.getGroupId(), metadata.getArtifactId()));
+        return feed;
     }
 
     private void addMetadataToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) throws ModelBuildingException {
