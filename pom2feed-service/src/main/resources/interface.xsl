@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 Author: Tim Cuthbertson
-Modified by Thomas Leonard.
+Modified by Thomas Leonard and Bastian Eicher.
 License: Creative Commons Attribution-ShareAlike 2.5 license
 http://creativecommons.org/licenses/by-sa/2.5/
 -->
@@ -21,7 +21,7 @@ http://creativecommons.org/licenses/by-sa/2.5/
 			<body>
 				<div class="site">
 					<div class="title"> 
-						<a href="http://0install.de/">0install.de</a>
+						<a href="http://maven.0install.net/">maven.0install.net</a>
 					</div>
 					<div class="main">
 						<div class="content">
@@ -147,8 +147,6 @@ http://creativecommons.org/licenses/by-sa/2.5/
 													<table cellpadding="0" cellspacing="0">
 														<tr>
 															<th>Version</th>
-															<th>Released</th>
-															<th>Stability</th>
 															<th>Platform</th>
 															<th>Download</th>
 														</tr>
@@ -161,23 +159,10 @@ http://creativecommons.org/licenses/by-sa/2.5/
 																	</xsl:if>
 																</td>
 																<td>
-																	<xsl:value-of select="(ancestor-or-self::*[@released])[last()]/@released"/>
+																	Java
 																</td>
 																<td>
-																	<xsl:value-of select="(ancestor-or-self::*[@stability])[last()]/@stability"/>
-																</td>
-																<td>
-																	<xsl:variable name="arch" select="(ancestor-or-self::*[@arch])[last()]/@arch"/>
-																	<xsl:choose>
-																		<xsl:when test="$arch = &quot;*-src&quot;">Source code</xsl:when>
-																		<xsl:when test="not($arch)">Any</xsl:when>
-																		<xsl:otherwise>
-																			<xsl:value-of select="$arch"/>
-																		</xsl:otherwise>
-																	</xsl:choose>
-																</td>
-																<td>
-																	<xsl:for-each select=".//zi:archive"><a href="{@href}">Download</a> (<xsl:value-of select="@size"/> bytes)
+																	<xsl:for-each select=".//zi:file"><a href="{@href}">Download</a> (<xsl:value-of select="@size"/> bytes)
 																	</xsl:for-each>
 																</td>
 															</tr>
@@ -345,7 +330,7 @@ http://creativecommons.org/licenses/by-sa/2.5/
 			<xsl:value-of select="."/>
 		</dd>
 	</xsl:template>
-	<xsl:template match="zi:archive">
+	<xsl:template match="zi:file">
 		<dt>Download</dt>
 		<dd><a href="{@href}"><xsl:value-of select="@href"/></a>
 		(<xsl:value-of select="@size"/> bytes)</dd>
