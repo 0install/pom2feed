@@ -56,19 +56,23 @@ public class FeedServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getPathInfo().equals("/")) {
+        String path = (req.getRequestURI().length() == 0)
+                ? "/"
+                : req.getRequestURI().substring(req.getContextPath().length());
+        
+        if (path.equals("/")) {
             respondWelcome(resp);
             return;
         }
 
-        if (req.getPathInfo().endsWith(".gpg")) {
+        if (path.endsWith(".gpg")) {
             respondGnuPGKey(resp);
-        } else if (req.getPathInfo().endsWith("/interface.xsl")) {
+        } else if (path.endsWith("/interface.xsl")) {
             respondXSL(resp);
-        } else if (req.getPathInfo().endsWith("/interface.css")) {
+        } else if (path.endsWith("/interface.css")) {
             respondCSS(resp);
         } else {
-            String artifactPath = req.getPathInfo().substring(1);
+            String artifactPath = path.substring(1);
             if (ArtifactUtils.validatePath(artifactPath)) {
                 respondFeed(resp, artifactPath);
             } else {
