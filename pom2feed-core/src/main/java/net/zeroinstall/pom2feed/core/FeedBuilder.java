@@ -77,7 +77,9 @@ public class FeedBuilder {
     public FeedBuilder addMetadata(Model model) {
         checkNotNull(model);
 
-        feed.addName(model.getName());
+        feed.addName(isNullOrEmpty(model.getName())
+                ? model.getArtifactId()
+                : model.getName());
         feed.addNewSummary().setStringValue("Maven artifact " + model.getGroupId() + ":" + model.getArtifactId());
         if (!isNullOrEmpty(model.getDescription())) {
             feed.addNewDescription().setStringValue(model.getDescription());
