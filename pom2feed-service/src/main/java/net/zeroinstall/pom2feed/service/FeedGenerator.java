@@ -42,7 +42,7 @@ public class FeedGenerator implements FeedProvider {
     /**
      * The command to execute in order to sign a feed file.
      */
-    private final String signingBinary;
+    private final String signCommand;
 
     /**
      * Creates a feed generator.
@@ -51,12 +51,12 @@ public class FeedGenerator implements FeedProvider {
      * provide binaries.
      * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies. This is usually the URL of this service itself.
-     * @param signingBinaryThe command to execute in order to sign a feed file.
+     * @param signCommand The command to execute in order to sign a feed file.
      */
-    public FeedGenerator(URL mavenRepository, URL pom2feedService, String signingBinary) throws MalformedURLException {
+    public FeedGenerator(URL mavenRepository, URL pom2feedService, String signCommand) throws MalformedURLException {
         this.mavenRepository = ensureSlashEnd(mavenRepository);
         this.pom2feedService = ensureSlashEnd(pom2feedService);
-        this.signingBinary = signingBinary;
+        this.signCommand = signCommand;
     }
 
     @Override
@@ -141,13 +141,11 @@ public class FeedGenerator implements FeedProvider {
     }
 
     private void signFeed(String path) throws IOException {
-        if (isNullOrEmpty(signingBinary)) {
+        if (isNullOrEmpty(signCommand)) {
             return;
         }
 
-        Runtime runtime = Runtime.getRuntime();
-        Process process = runtime.exec(signingBinary, new String[]{path});
-
+        Process process = new ProcessBuilder(signCommand, path).start();
         try {
             if (process.waitFor() != 0) {
                 throw new IOException("Unable to sign feed:\n"
