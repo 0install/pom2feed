@@ -11,7 +11,7 @@ import net.zeroinstall.model.InterfaceDocument;
  * Contains test cases run against live/online Maven repository to test special
  * case handling.
  */
-@Ignore
+@Ignore // Communicates over the internet
 public class FeedGeneratorOnlineTest {
 
     private FeedGenerator feedGenerator;

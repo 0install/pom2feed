@@ -210,18 +210,20 @@ public class FeedBuilder {
     }
 
     private void addArtifactDependency(Implementation implementation, org.apache.maven.model.Dependency mavenDep) {
-        if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("compile") || mavenDep.getScope().equals("runtime")) {
-            net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-            ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-            ziDep.setVersion(convertRange(mavenDep.getVersion()));
-            if ("true".equals(mavenDep.getOptional())) {
-                ziDep.setImportance(Importance.RECOMMENDED);
-            }
-
-            Environment environment = ziDep.addNewEnvironment();
-            environment.setName("CLASSPATH");
-            environment.setInsert(".");
+        if ("compile".equals(mavenDep.getScope()) || "runtime".equals(mavenDep.getScope())) {
+            return;
         }
+
+        net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
+        ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
+        ziDep.setVersion(convertRange(mavenDep.getVersion()));
+        if ("true".equals(mavenDep.getOptional())) {
+            ziDep.setImportance(Importance.RECOMMENDED);
+        }
+
+        Environment environment = ziDep.addNewEnvironment();
+        environment.setName("CLASSPATH");
+        environment.setInsert(".");
     }
 
     private void addJavaDependency(Implementation implementation, String javaVersion) {
