@@ -36,7 +36,7 @@ public final class MavenUtils {
 
         return ensureSlashEnd(pom2feedService).toString()
                 + groupId.replace('.', '/') + '/'
-                + artifactId.replace('.', '/') + '/';
+                + artifactId + '/';
     }
 
     /**
@@ -59,7 +59,7 @@ public final class MavenUtils {
         try {
             return new URL(ensureSlashEnd(mavenRepository).toString()
                     + groupId.replace('.', '/') + '/'
-                    + artifactId.replace('.', '/') + '/'
+                    + artifactId + '/'
                     + version + '/'
                     + getArtifactFileName(artifactId, version, packaging));
         } catch (MalformedURLException ex) {

@@ -90,7 +90,7 @@ public class FeedServlet extends HttpServlet {
         out.write("<h2>Maven Artifact Zero Install Feed Provider</h2>");
         out.write("<p>This web service provides Zero Install feeds for Maven artifacts. Usage:</p>");
         out.write("<pre>" + serviceURL + "{group-id}/{artifact-id}/</pre>");
-        out.write("<p>Replace dots in the group and artifact ID with slashes in URL.</p>");
+        out.write("<p>Replace dots in the group ID with slashes in URL.</p>");
         out.write("</body>");
         out.write("</html>");
     }
