@@ -31,8 +31,8 @@ public final class MavenUtils {
      */
     public static String getServiceUrl(URL pom2feedService, String groupId, String artifactId) {
         checkNotNull(pom2feedService);
-        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches(), "invalid groupId: %s", groupId);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches(), "invalid artifactId: %s", artifactId);
 
         return ensureSlashEnd(pom2feedService).toString()
                 + groupId.replace('.', '/') + '/'
@@ -51,10 +51,10 @@ public final class MavenUtils {
      */
     public static URL getArtifactFileUrl(URL mavenRepository, String groupId, String artifactId, String version, String packaging) {
         checkNotNull(mavenRepository);
-        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(groupId)).matches(), "invalid groupId: %s", groupId);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches(), "invalid artifactId: %s", artifactId);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches(), "invalid version: %s", version);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches(), "invalid packaging: %s", packaging);
 
         try {
             return new URL(ensureSlashEnd(mavenRepository).toString()
@@ -75,9 +75,9 @@ public final class MavenUtils {
      * @param packaging The file type to return (e.g. JAR or POM).
      */
     public static String getArtifactFileName(String artifactId, String version, String packaging) {
-        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches());
-        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches());
+        checkArgument(mavenIdPattern.matcher(checkNotNull(artifactId)).matches(), "invalid artifactId: %s", artifactId);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches(), "invalid version: %s", version);
+        checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches(), "invalid packaging: %s", packaging);
 
         return artifactId + "-" + version + "." + packaging.replace("maven-plugin", "jar");
     }
