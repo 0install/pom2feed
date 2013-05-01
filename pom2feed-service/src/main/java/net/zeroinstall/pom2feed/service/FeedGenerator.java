@@ -87,6 +87,8 @@ public class FeedGenerator implements FeedProvider {
                 Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
             }
         }
     }
