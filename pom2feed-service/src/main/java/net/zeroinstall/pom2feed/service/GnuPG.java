@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
-import static org.codehaus.plexus.util.IOUtil.toByteArray;
+import static com.google.common.io.ByteStreams.toByteArray;
 
 /**
  * Utility class for interacting with GnuPG.
