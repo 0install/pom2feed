@@ -25,6 +25,18 @@ public class FeedGeneratorOnlineTest {
     }
 
     @Test
+    public void testAsm() throws Exception {
+        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("asm/asm/")).getInterface();
+        assertEquals("ASM Core", feed.getNameArray(0));
+    }
+
+    @Test
+    public void testXom() throws Exception {
+        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("xom/xom/")).getInterface();
+        assertEquals("xom", feed.getNameArray(0));
+    }
+
+    @Test
     public void testApacheCommonsLang3() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("org/apache/commons/commons-lang3/")).getInterface();
         assertEquals("Commons Lang", feed.getNameArray(0));
@@ -35,11 +47,5 @@ public class FeedGeneratorOnlineTest {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("org/apache/directory/api/api-ldap-model/")).getInterface();
         assertTrue(feed.getImplementationArray().length > 0);
         assertEquals("Apache Directory LDAP API Model", feed.getNameArray(0));
-    }
-
-    @Test
-    public void testAsm() throws Exception {
-        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("asm/asm/")).getInterface();
-        assertEquals("ASM Core", feed.getNameArray(0));
     }
 }
