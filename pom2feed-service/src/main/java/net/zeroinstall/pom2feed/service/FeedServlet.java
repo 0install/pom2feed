@@ -54,7 +54,7 @@ public class FeedServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String path = (req.getRequestURI().length() == 0)
+        String path = (req.getRequestURI().length() <= req.getContextPath().length())
                 ? "/"
                 : req.getRequestURI().substring(req.getContextPath().length());
 

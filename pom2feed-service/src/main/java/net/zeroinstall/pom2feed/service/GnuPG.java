@@ -1,10 +1,10 @@
 package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.io.ByteStreams.toByteArray;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
-import static com.google.common.io.ByteStreams.toByteArray;
 
 /**
  * Utility class for interacting with GnuPG.
