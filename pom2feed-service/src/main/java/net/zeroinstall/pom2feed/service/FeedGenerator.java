@@ -75,8 +75,15 @@ public class FeedGenerator implements FeedProvider {
     }
 
     private void addMetadataToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) throws ModelBuildingException {
-        Model latestModel = getModel(metadata, metadata.getLatestVersion());
-        feedBuilder.addMetadata(latestModel);
+        Model model;
+        try {
+            model = getModel(metadata, metadata.getLatestVersion());
+        } catch (ModelBuildingException ex) {
+            // Fall back to first version if latest version does not work
+            model = getModel(metadata, metadata.getVersions().get(0));
+        }
+
+        feedBuilder.addMetadata(model);
     }
 
     private void addImplementationsToFeed(MavenMetadata metadata, FeedBuilder feedBuilder) {
