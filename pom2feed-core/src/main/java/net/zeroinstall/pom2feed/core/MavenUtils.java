@@ -79,7 +79,7 @@ public final class MavenUtils {
         checkArgument(mavenIdPattern.matcher(checkNotNull(version)).matches(), "invalid version: %s", version);
         checkArgument(mavenIdPattern.matcher(checkNotNull(packaging)).matches(), "invalid packaging: %s", packaging);
 
-        return artifactId + "-" + version + "." + packaging.replace("maven-plugin", "jar");
+        return artifactId + "-" + version + "." + packaging.replace("bundle", "jar").replace("maven-plugin", "jar");
     }
 
     /**
