@@ -39,8 +39,10 @@ public class FeedGeneratorTest {
                 willReturn(aResponse().withStatus(200).withHeader("Content-Length", "1024")));
         stubFor(get(urlEqualTo("/group/artifact/1.1/artifact-1.1.jar.sha1")).
                 willReturn(aResponse().withStatus(200).withBody("123abc")));
-
-        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("group/artifact/")).getInterface();
+        
+        String xmlText = feedGenerator.getFeed("group/artifact/");
+        assertTrue(xmlText.startsWith("<?xml"));
+        Feed feed = InterfaceDocument.Factory.parse(xmlText).getInterface();
 
         verify(getRequestedFor(urlEqualTo("/group/artifact/maven-metadata.xml")));
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.pom")));

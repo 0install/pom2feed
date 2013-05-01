@@ -1,7 +1,6 @@
 package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -43,15 +42,14 @@ public class FeedServlet extends HttpServlet {
         // Load configuration from Java system properties
         this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
         URL mavenRepository = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
-        String signCommand = System.getProperty("pom2feed-service.signCommand", "");
-        String gpgKeyFile = System.getProperty("pom2feed-service.gpgKeyFile", "");
+        String gnuPGKey = System.getProperty("pom2feed-service.gnuPGKey", null);
 
         // Load files into memory
-        this.gpgKeyData = isNullOrEmpty(gpgKeyFile) ? null : new Scanner(new File(gpgKeyFile)).useDelimiter("\\A").next();
+        this.gpgKeyData = isNullOrEmpty(gnuPGKey) ? null : GnuPG.getPublicKey(gnuPGKey);
         this.xslData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.xsl")).useDelimiter("\\A").next();
         this.cssData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.css")).useDelimiter("\\A").next();
 
-        this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, signCommand));
+        this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }
 
     @Override
@@ -59,7 +57,7 @@ public class FeedServlet extends HttpServlet {
         String path = (req.getRequestURI().length() == 0)
                 ? "/"
                 : req.getRequestURI().substring(req.getContextPath().length());
-        
+
         if (path.equals("/")) {
             respondWelcome(resp);
             return;

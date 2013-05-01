@@ -1,14 +1,9 @@
 package net.zeroinstall.pom2feed.service;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.zeroinstall.model.InterfaceDocument;
@@ -16,6 +11,7 @@ import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -40,9 +36,9 @@ public class FeedGenerator implements FeedProvider {
      */
     private final URL pom2feedService;
     /**
-     * The command to execute in order to sign a feed file.
+     * The name of the key to use for GnuPG signing.
      */
-    private final String signCommand;
+    private final String gnuPGKey;
 
     /**
      * Creates a feed generator.
@@ -51,12 +47,12 @@ public class FeedGenerator implements FeedProvider {
      * provide binaries.
      * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies. This is usually the URL of this service itself.
-     * @param signCommand The command to execute in order to sign a feed file.
+     * @param gnuPGKey The name of the key to use for GnuPG signing.
      */
-    public FeedGenerator(URL mavenRepository, URL pom2feedService, String signCommand) throws MalformedURLException {
+    public FeedGenerator(URL mavenRepository, URL pom2feedService, String gnuPGKey) throws MalformedURLException {
         this.mavenRepository = ensureSlashEnd(mavenRepository);
         this.pom2feedService = ensureSlashEnd(pom2feedService);
-        this.signCommand = signCommand;
+        this.gnuPGKey = gnuPGKey;
     }
 
     @Override
@@ -64,22 +60,15 @@ public class FeedGenerator implements FeedProvider {
         MavenMetadata metadata = MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml"));
         InterfaceDocument feed = buildFeed(metadata);
 
-        File tempFile = File.createTempFile("pom2feed-service", ".xml");
-        try {
-            addStylesheet(feed);
-            saveFeed(feed, tempFile);
-            signFeed(tempFile.getPath());
-            return Files.toString(tempFile, Charsets.UTF_8);
-        } finally {
-            tempFile.delete();
-        }
+        addStylesheet(feed);
+        return signFeed(feedToXmlText(feed));
     }
 
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException {
         FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
         addMetadataToFeed(metadata, feedBuilder);
         addImplementationsToFeed(metadata, feedBuilder);
-        
+
         InterfaceDocument feed = feedBuilder.getDocument();
         feed.getInterface().setUri(getServiceUrl(pom2feedService, metadata.getGroupId(), metadata.getArtifactId()));
         return feed;
@@ -121,8 +110,19 @@ public class FeedGenerator implements FeedProvider {
         cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
     }
 
-    private void saveFeed(InterfaceDocument feed, File tempFile) throws IOException {
-        feed.save(tempFile, new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
+    private String feedToXmlText(InterfaceDocument feed) {
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + feed.xmlText(new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
+    }
+
+    private String signFeed(String xmlText) throws IOException {
+        xmlText += "\n";
+        if (gnuPGKey == null) {
+            return xmlText;
+        }
+
+        String signature = encodeBase64String(GnuPG.detachSign(xmlText, gnuPGKey));
+        return xmlText + "<!-- Base64 Signature\n" + signature + "\n-->\n";
     }
 
     private class RepositoryModelResolver implements ModelResolver {
@@ -140,22 +140,6 @@ public class FeedGenerator implements FeedProvider {
         @Override
         public ModelResolver newCopy() {
             throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
-    private void signFeed(String path) throws IOException {
-        if (isNullOrEmpty(signCommand)) {
-            return;
-        }
-
-        Process process = new ProcessBuilder(signCommand, path).start();
-        try {
-            if (process.waitFor() != 0) {
-                throw new IOException("Unable to sign feed:\n"
-                        + new Scanner(process.getErrorStream()).useDelimiter("\\A").next());
-            }
-        } catch (InterruptedException ex) {
-            throw new IOException(ex);
         }
     }
 }
