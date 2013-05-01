@@ -130,16 +130,22 @@ public class FeedBuilder {
     public FeedBuilder addRemoteImplementation(Model model) throws IOException {
         checkNotNull(model);
 
+        URL fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
+        long size = getRemoteFileSize(fileUrl);
+        String hash = getRemoteLine(new URL(fileUrl.toString() + ".sha1"));
+        String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
+
         Implementation implementation = addNewImplementation(model);
         addDependencies(implementation, model);
 
-        try {
-            addFile(implementation, model);
-        } catch (IOException ex) {
-            // Remove incomplete implementation
-            feed.removeImplementation(feed.getImplementationArray().length - 1);
-            throw ex;
-        }
+        ManifestDigest digest = implementation.addNewManifestDigest();
+        digest.setSha1New(getSha1ManifestDigest(hash, size, fileName));
+
+        File file = implementation.addNewFile();
+        file.setHref(fileUrl.toString());
+        file.setSize(size);
+        file.setDest(fileName);
+
         if (model.getPackaging().equals("jar")) {
             Command command = addNewCommand(implementation);
             command.setPath(getArtifactFileName(model.getArtifactId(), model.getVersion(), "jar"));
@@ -231,29 +237,5 @@ public class FeedBuilder {
         javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
         Constraint constraint = javaDep.addNewVersion2();
         constraint.setNotBefore(javaVersion);
-    }
-
-    /**
-     * Creates a file download entry for a JAR hosted in a Maven repository.
-     *
-     * @param implementation The implementation to add the download entry to.
-     * @param model The Maven model describing the artifact.
-     * @throws IOException A file could not be retrieved from the Maven
-     * repository.
-     */
-    private void addFile(Implementation implementation, Model model) throws IOException {
-        URL fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
-        long size = getRemoteFileSize(fileUrl);
-        String hash = getRemoteLine(new URL(fileUrl.toString() + ".sha1"));
-
-        String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
-
-        File file = implementation.addNewFile();
-        file.setHref(fileUrl.toString());
-        file.setSize(size);
-        file.setDest(fileName);
-
-        ManifestDigest digest = implementation.addNewManifestDigest();
-        digest.setSha1New(getSha1ManifestDigest(hash, size, fileName));
     }
 }
