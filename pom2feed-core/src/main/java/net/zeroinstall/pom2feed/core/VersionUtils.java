@@ -47,12 +47,12 @@ final class VersionUtils {
      */
     private static final String[][] QUALIFIER_MAP = new String[][]{
         {"snapshot", "pre-"},
-        {"alpha", "pre1-"},
-        {"a", "pre1-"},
-        {"beta", "pre2-"},
-        {"b", "pre2-"},
-        {"milestone", "pre3-"},
-        {"m", "pre3-"},
+        {"milestone", "pre1-"},
+        {"m", "pre1-"},
+        {"alpha", "pre2-"},
+        {"a", "pre2-"},
+        {"beta", "pre3-"},
+        {"b", "pre3-"},
         {"rc", "rc"},
         {"cr", "rc"},
         {"ga", "0"},
