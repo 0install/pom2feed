@@ -4,8 +4,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
@@ -20,12 +18,15 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
 import org.xml.sax.SAXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates Zero Install feeds for Maven artifacts on demand.
  */
 public class FeedGenerator implements FeedProvider {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(FeedGenerator.class);
     /**
      * The base URL of the Maven repository used to provide binaries.
      */
@@ -91,11 +92,11 @@ public class FeedGenerator implements FeedProvider {
             try {
                 feedBuilder.addRemoteImplementation(getModel(metadata, version));
             } catch (ModelBuildingException ex) {
-                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
+                LOGGER.trace(null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
+                LOGGER.trace(null, ex);
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(FeedGenerator.class.getName()).log(Level.FINEST, null, ex);
+                LOGGER.trace(null, ex);
             }
         }
     }
