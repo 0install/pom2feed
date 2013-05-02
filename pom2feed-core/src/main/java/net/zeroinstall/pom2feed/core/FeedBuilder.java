@@ -132,7 +132,7 @@ public class FeedBuilder {
 
         URL fileUrl = getArtifactFileUrl(mavenRepository, model.getGroupId(), model.getArtifactId(), model.getVersion(), model.getPackaging());
         long size = getRemoteFileSize(fileUrl);
-        String hash = getRemoteLine(new URL(fileUrl.toString() + ".sha1"));
+        String hash = getRemoteWord(new URL(fileUrl.toString() + ".sha1"));
         String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
 
         Implementation implementation = addNewImplementation(model);

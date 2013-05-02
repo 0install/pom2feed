@@ -2,13 +2,11 @@ package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 /**
  * Utility class for handling URLs.
@@ -34,10 +32,12 @@ public final class UrlUtils {
         return size;
     }
 
-    public static String getRemoteLine(URL url) throws IOException {
-        InputStream stream = url.openStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String hash = reader.readLine();
-        return hash;
+    public static String getRemoteWord(URL url) throws IOException {
+        Scanner scanner = new Scanner(url.openStream());
+        try {
+            return scanner.next();
+        } finally {
+            scanner.close();
+        }
     }
 }

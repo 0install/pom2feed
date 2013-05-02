@@ -31,11 +31,11 @@ public class UrlUtilsTest {
     }
 
     @Test
-    public void testGetRemoteLine() throws IOException {
+    public void testGetRemoteWord() throws IOException {
         stubFor(get(urlEqualTo("/test")).
                 willReturn(aResponse().withStatus(200).withBody("abc\n123")));
 
-        assertEquals("abc", getRemoteLine(new URL("http://localhost:8089/test")));
+        assertEquals("abc", getRemoteWord(new URL("http://localhost:8089/test")));
 
         verify(getRequestedFor(urlEqualTo("/test")));
     }
