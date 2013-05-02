@@ -1,7 +1,9 @@
 package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 /**
@@ -45,28 +47,28 @@ final class VersionUtils {
     /**
      * Maps Maven version qualifiers to Zero Install version qualifiers.
      */
-    private static final String[][] QUALIFIER_MAP = new String[][]{
-        {"snapshot", "pre-"},
-        {"milestone", "pre1-"},
-        {"m", "pre1-"},
-        {"alpha", "pre2-"},
-        {"a", "pre2-"},
-        {"beta", "pre3-"},
-        {"b", "pre3-"},
-        {"rc", "rc"},
-        {"cr", "rc"},
-        {"ga", "0"},
-        {"final", "0"},
-        {"rev", "post-"},
-        {"sp", "post"}
-    };
+    private static final ImmutableMap<String, String> QUALIFIER_MAP = ImmutableMap.<String, String>builder()
+            .put("snapshot", "pre-")
+            .put("milestone", "pre1-")
+            .put("m", "pre1-")
+            .put("alpha", "pre2-")
+            .put("a", "pre2-")
+            .put("beta", "pre3-")
+            .put("b", "pre3-")
+            .put("rc", "rc")
+            .put("cr", "rc")
+            .put("ga", "0")
+            .put("final", "0")
+            .put("rev", "post-")
+            .put("sp", "post")
+            .build();
 
     private static String pom2feedVersionPart(String part) {
         String prefix = "";
-        for (String[] pair : QUALIFIER_MAP) {
-            if (part.toLowerCase(Locale.ENGLISH).startsWith(pair[0])) {
-                part = part.substring(pair[0].length());
-                prefix = pair[1];
+        for (final Entry<String, String> pair : QUALIFIER_MAP.entrySet()) {
+            if (part.toLowerCase(Locale.ENGLISH).startsWith(pair.getKey())) {
+                part = part.substring(pair.getKey().length());
+                prefix = pair.getValue();
                 break;
             }
         }
