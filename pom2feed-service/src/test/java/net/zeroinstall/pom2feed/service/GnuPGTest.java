@@ -5,7 +5,7 @@ import static net.zeroinstall.pom2feed.service.GnuPG.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-@Ignore // Communicates with a real GnuPG instance, which must be configured
+@Ignore("Communicates with a real GnuPG instance, which must be configured.")
 public class GnuPGTest {
 
     @Test
