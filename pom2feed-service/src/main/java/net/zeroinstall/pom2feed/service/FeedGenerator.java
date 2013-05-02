@@ -3,8 +3,8 @@ package net.zeroinstall.pom2feed.service;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.BaseEncoding.base64;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
+import javax.xml.xpath.XPathExpressionException;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
@@ -50,19 +50,27 @@ public class FeedGenerator implements FeedProvider {
      * provide dependencies. This is usually the URL of this service itself.
      * @param gnuPGKey The name of the key to use for GnuPG signing.
      */
-    public FeedGenerator(URL mavenRepository, URL pom2feedService, String gnuPGKey) throws MalformedURLException {
+    public FeedGenerator(URL mavenRepository, URL pom2feedService, String gnuPGKey) {
         this.mavenRepository = ensureSlashEnd(mavenRepository);
         this.pom2feedService = ensureSlashEnd(pom2feedService);
         this.gnuPGKey = gnuPGKey;
     }
 
     @Override
-    public String getFeed(final String artifactPath) throws IOException, SAXException, ModelBuildingException {
-        MavenMetadata metadata = MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml"));
+    public String getFeed(final String artifactPath) throws IOException, SAXException, XPathExpressionException, ModelBuildingException {
+        MavenMetadata metadata = getMetadata(artifactPath);
         InterfaceDocument feed = buildFeed(metadata);
 
         addStylesheet(feed);
         return signFeed(feedToXmlText(feed));
+    }
+
+    private MavenMetadata getMetadata(String artifactPath) throws IOException, SAXException, XPathExpressionException {
+        if (mavenRepository.getHost().equals("repo.maven.apache.org")) {
+            return MavenMetadata.performQuery(new URL("http://search.maven.org/solrsearch/"), artifactPath);
+        } else {
+            return MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml"));
+        }
     }
 
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException {

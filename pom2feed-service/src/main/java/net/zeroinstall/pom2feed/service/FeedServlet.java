@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.Scanner;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
+import javax.xml.xpath.XPathExpressionException;
 import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.xml.sax.SAXException;
@@ -113,6 +114,8 @@ public class FeedServlet extends HttpServlet {
         } catch (IOException ex) {
             resp.sendError(404, "Not a valid Maven artifact");
         } catch (SAXException ex) {
+            resp.sendError(500, "Maven versioning metadata invalid");
+        } catch (XPathExpressionException ex) {
             resp.sendError(500, "Maven versioning metadata invalid");
         } catch (ModelBuildingException ex) {
             resp.sendError(404, "Maven project metadata invalid");

@@ -1,6 +1,7 @@
 package net.zeroinstall.pom2feed.service;
 
 import java.io.IOException;
+import javax.xml.xpath.XPathExpressionException;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.xml.sax.SAXException;
 
@@ -19,5 +20,5 @@ public interface FeedProvider {
      * @throws SAXException Parsing of one the Maven source files failed.
      * @throws ModelBuildingException Maven source model is inconsistent.
      */
-    String getFeed(String artifactPath) throws IOException, SAXException, ModelBuildingException;
+    String getFeed(String artifactPath) throws IOException, SAXException, XPathExpressionException, ModelBuildingException;
 }

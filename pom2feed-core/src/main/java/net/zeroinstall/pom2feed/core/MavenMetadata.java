@@ -1,13 +1,18 @@
 package net.zeroinstall.pom2feed.core;
 
+import com.google.common.base.Joiner;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Throwables.propagate;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import static java.net.URLEncoder.encode;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.parsers.*;
+import javax.xml.xpath.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -16,6 +21,27 @@ import org.xml.sax.SAXException;
  */
 public class MavenMetadata {
 
+    private static final DocumentBuilder docBuilder;
+    private static final XPathExpression groupIdPath, artifactIdPath, versionsPath, latestVersionPath, versionsQueryPath;
+
+    static {
+        try {
+            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException ex) {
+            throw propagate(ex);
+        }
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        try {
+            groupIdPath = xpath.compile("//groupId/text()");
+            artifactIdPath = xpath.compile("//artifactId/text()");
+            versionsPath = xpath.compile("//versioning//versions//version/text()");
+            latestVersionPath = xpath.compile("//versioning//latest/text()");
+            versionsQueryPath = xpath.compile("//result[@name='response']//doc/str[@name='v']/text()");
+        } catch (XPathExpressionException ex) {
+            throw propagate(ex);
+        }
+    }
     private final String groupId;
     private final String artifactId;
     private final String latestVersion;
@@ -42,8 +68,62 @@ public class MavenMetadata {
      * @throws IOException Download of the source file failed.
      * @throws SAXException Parsing of the source file failed.
      */
-    public static MavenMetadata load(URL url) throws IOException, SAXException {
-        return load(url.openStream());
+    public static MavenMetadata load(URL url) throws IOException, SAXException, XPathExpressionException {
+        return parse(url.openStream());
+    }
+
+    /**
+     * Parses versioning metadata from an XML stream.
+     *
+     * @throws IOException Reading of the metadata file failed.
+     * @throws SAXException Parsing of the metadata file failed.
+     */
+    public static MavenMetadata parse(InputStream stream) throws IOException, SAXException, XPathExpressionException {
+        Document doc = docBuilder.parse(stream);
+
+        NodeList groupIdNodes = (NodeList) groupIdPath.evaluate(doc, XPathConstants.NODESET);
+        String groupId = groupIdNodes.item(0).getNodeValue();
+        NodeList artifactIdNodes = (NodeList) artifactIdPath.evaluate(doc, XPathConstants.NODESET);
+        String artifactId = artifactIdNodes.item(0).getNodeValue();
+        NodeList versionNodes = (NodeList) versionsPath.evaluate(doc, XPathConstants.NODESET);
+        List<String> versions = new LinkedList<String>();
+        for (int i = 0; i < versionNodes.getLength(); i++) {
+            versions.add(versionNodes.item(i).getNodeValue());
+        }
+        String latestVersion = (String) latestVersionPath.evaluate(doc, XPathConstants.STRING);
+        if (isNullOrEmpty(latestVersion)) {
+            latestVersion = versions.get(versions.size() - 1);
+        }
+
+        return new MavenMetadata(groupId, artifactId, latestVersion, versions);
+    }
+
+    /**
+     * Retrieves versioning metadata from a search query.
+     *
+     * @throws IOException Download of the query data failed.
+     * @throws SAXException Parsing of the query data failed.
+     */
+    public static MavenMetadata performQuery(URL queryService, String artifactPath) throws IOException, SAXException, XPathExpressionException {
+        String[] parts = artifactPath.split("/");
+        String groupId = Joiner.on(".").join(Arrays.copyOfRange(parts, 0, parts.length - 1));
+        String artifactId = parts[parts.length - 1];
+
+        URL url = new URL(queryService, "select?q="
+                + "g:%22" + encode(groupId, "UTF-8") + "%22+AND+"
+                + "a:%22" + encode(artifactId, "UTF-8") + "%22"
+                + "&core=gav&wt=xml");
+        InputStream stream = url.openStream();
+        Document doc = docBuilder.parse(stream);
+
+        NodeList versionNodes = (NodeList) versionsQueryPath.evaluate(doc, XPathConstants.NODESET);
+        List<String> versions = new LinkedList<String>();
+        for (int i = 0; i < versionNodes.getLength(); i++) {
+            versions.add(versionNodes.item(i).getNodeValue());
+        }
+        String latestVersion = versions.get(versions.size() - 1);
+
+        return new MavenMetadata(groupId, artifactId, latestVersion, versions);
     }
 
     /**
@@ -64,9 +144,7 @@ public class MavenMetadata {
      * Returns the latest version of the artifact.
      */
     public String getLatestVersion() {
-        return (latestVersion == null)
-                ? versions.get(versions.size() - 1)
-                : latestVersion;
+        return latestVersion;
     }
 
     /**
@@ -74,50 +152,5 @@ public class MavenMetadata {
      */
     public List<String> getVersions() {
         return versions;
-    }
-
-    /**
-     * Loads versioning metadata from an XML stream.
-     *
-     * @throws IOException Reading of the source file failed.
-     * @throws SAXException Parsing of the source file failed.
-     */
-    public static MavenMetadata load(InputStream stream) throws IOException, SAXException {
-        DocumentBuilder docBuilder;
-        try {
-            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (ParserConfigurationException ex) {
-            throw propagate(ex);
-        }
-
-        Document doc = docBuilder.parse(stream);
-        Element versioning = (Element) doc.getElementsByTagName("versioning").item(0);
-        return new MavenMetadata(getGroupId(doc), getArtifactId(doc), getLatestVersion(versioning), getVersions(versioning));
-    }
-
-    private static String getGroupId(Document doc) throws DOMException {
-        String groupId = doc.getElementsByTagName("groupId").item(0).getTextContent();
-        return groupId;
-    }
-
-    private static String getArtifactId(Document doc) throws DOMException {
-        String artifactId = doc.getElementsByTagName("artifactId").item(0).getTextContent();
-        return artifactId;
-    }
-
-    private static List<String> getVersions(Element versioning) throws DOMException {
-        Element versionsContainer = (Element) versioning.getElementsByTagName("versions").item(0);
-        NodeList versionTags = versionsContainer.getElementsByTagName("version");
-        List<String> versions = new LinkedList<String>();
-        for (int i = 0; i < versionTags.getLength(); i++) {
-            versions.add(versionTags.item(i).getTextContent());
-        }
-        return versions;
-    }
-
-    private static String getLatestVersion(Element versioning) throws DOMException {
-        Node latestVersionNode = versioning.getElementsByTagName("latest").item(0);
-        String latestVersion = (latestVersionNode == null) ? null : latestVersionNode.getTextContent();
-        return latestVersion;
     }
 }

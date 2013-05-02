@@ -39,4 +39,21 @@ public class MavenMetadataTest {
         assertEquals("1.2", metadata.getLatestVersion());
         assertEquals(newArrayList("1.0", "1.1", "1.2"), metadata.getVersions());
     }
+
+    @Test
+    public void testPerformQuery() throws Exception {
+        stubFor(get(urlEqualTo("/select?q=g:%22group.subgroup%22+AND+a:%22artifact.subartifact%22&core=gav&wt=xml")).willReturn(aResponse().withStatus(200).
+                withBody("<response><lst name=\"responseHeader\"></lst><result name=\"response\">"
+                + "<doc><str name=\"a\">artifact.subartifact</str><str name=\"g\">group.subgroup</str><str name=\"id\">group.subgroup:artifact.subartifact:1.0</str><str name=\"v\">1.0</str></doc>\n"
+                + "<doc><str name=\"a\">artifact.subartifact</str><str name=\"g\">group.subgroup</str><str name=\"id\">group.subgroup:artifact.subartifact:1.1</str><str name=\"v\">1.1</str></doc>\n"
+                + "</result></response>")));
+
+        MavenMetadata metadata = MavenMetadata.performQuery(new URL("http://localhost:8089/"), "group/subgroup/artifact.subartifact");
+
+        verify(getRequestedFor(urlEqualTo("/select?q=g:%22group.subgroup%22+AND+a:%22artifact.subartifact%22&core=gav&wt=xml")));
+        assertEquals("group.subgroup", metadata.getGroupId());
+        assertEquals("artifact.subartifact", metadata.getArtifactId());
+        assertEquals("1.1", metadata.getLatestVersion());
+        assertEquals(newArrayList("1.0", "1.1"), metadata.getVersions());
+    }
 }
