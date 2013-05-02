@@ -37,6 +37,13 @@ public class FeedGeneratorOnlineTest {
     }
 
     @Test
+    public void testXmlResolver() throws Exception {
+        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("xml-resolver/xml-resolver/")).getInterface();
+        assertTrue(feed.getImplementationArray().length > 0);
+        assertEquals("XML Commons Resolver Component", feed.getNameArray(0));
+    }
+
+    @Test
     public void testApacheCommonsLang3() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("org/apache/commons/commons-lang3/")).getInterface();
         assertEquals("Commons Lang", feed.getNameArray(0));
@@ -50,9 +57,9 @@ public class FeedGeneratorOnlineTest {
     }
 
     @Test
-    public void testXmlResolver() throws Exception {
-        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("xml-resolver/xml-resolver/")).getInterface();
+    public void testGoogleGuava() throws Exception {
+        Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("com/google/guava/guava/")).getInterface();
         assertTrue(feed.getImplementationArray().length > 0);
-        assertEquals("XML Commons Resolver Component", feed.getNameArray(0));
+        assertEquals("Guava: Google Core Libraries for Java", feed.getNameArray(0));
     }
 }

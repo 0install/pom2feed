@@ -210,24 +210,28 @@ public class FeedBuilder {
         }
 
         for (org.apache.maven.model.Dependency mavenDep : model.getDependencies()) {
-
-            addArtifactDependency(implementation, mavenDep);
+            if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("runtime") || mavenDep.getScope().equals("compile")) {
+                addArtifactDependency(implementation, mavenDep);
+            }
         }
     }
 
     private void addArtifactDependency(Implementation implementation, org.apache.maven.model.Dependency mavenDep) {
-        if (isNullOrEmpty(mavenDep.getScope()) || mavenDep.getScope().equals("runtime") || mavenDep.getScope().equals("compile")) {
-            net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
-            ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-            ziDep.setVersion(convertRange(mavenDep.getVersion()));
-            if ("true".equals(mavenDep.getOptional())) {
-                ziDep.setImportance(Importance.RECOMMENDED);
-            }
-
-            Environment environment = ziDep.addNewEnvironment();
-            environment.setName("CLASSPATH");
-            environment.setInsert(".");
+        // HACK: Workaround for broken Google Guava POM
+        if (mavenDep.getGroupId().equals("com.google.code.findbugs")) {
+            return;
         }
+
+        net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
+        ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
+        ziDep.setVersion(convertRange(mavenDep.getVersion()));
+        if ("true".equals(mavenDep.getOptional())) {
+            ziDep.setImportance(Importance.RECOMMENDED);
+        }
+
+        Environment environment = ziDep.addNewEnvironment();
+        environment.setName("CLASSPATH");
+        environment.setInsert(".");
     }
 
     private void addJavaDependency(Implementation implementation, String javaVersion) {
