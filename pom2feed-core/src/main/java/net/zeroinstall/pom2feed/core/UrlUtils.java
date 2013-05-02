@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.zeroinstall.pom2feed.core;
 
 import static com.google.common.base.Preconditions.checkNotNull;
