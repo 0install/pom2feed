@@ -1,6 +1,7 @@
 package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.io.BaseEncoding.base64;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -9,7 +10,6 @@ import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
-import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -131,7 +131,7 @@ public class FeedGenerator implements FeedProvider {
             return xmlText;
         }
 
-        String signature = encodeBase64String(GnuPG.detachSign(xmlText, gnuPGKey));
+        String signature = base64().lowerCase().encode(GnuPG.detachSign(xmlText, gnuPGKey));
         return xmlText + "<!-- Base64 Signature\n" + signature + "\n-->\n";
     }
 
