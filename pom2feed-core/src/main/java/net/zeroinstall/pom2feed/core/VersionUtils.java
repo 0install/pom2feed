@@ -74,7 +74,8 @@ final class VersionUtils {
         }
 
         if (!isDottedList(part)) {
-            part = convertToAsciiNumbers(part);
+            long number = convertToAsciiNumbers(part);
+            part = (number == 0) ? "" : Long.toString(convertToAsciiNumbers(part));
         }
 
         if (prefix.endsWith("-") && part.equals("")) {
@@ -84,12 +85,17 @@ final class VersionUtils {
         }
     }
 
-    static String convertToAsciiNumbers(String value) {
-        StringBuilder builder = new StringBuilder();
-        for (char c : value.toCharArray()) {
-            builder.append(String.format("%03d", (byte) c));
+    static long convertToAsciiNumbers(String value) {
+        if (value.length() >= 9) {
+            return Long.MAX_VALUE;
         }
-        return builder.toString();
+
+        long result = 0;
+        char[] chars = value.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            result = (result << 7) + (byte) chars[i];
+        }
+        return result;
     }
 
     /**
