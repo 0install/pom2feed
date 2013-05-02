@@ -217,8 +217,8 @@ public class FeedBuilder {
     }
 
     private void addArtifactDependency(Implementation implementation, org.apache.maven.model.Dependency mavenDep) {
-        // HACK: Workaround for broken Google Guava POM
-        if (mavenDep.getGroupId().equals("com.google.code.findbugs")) {
+        // HACK: Workaround for broken POMs referencing test code at runtime
+        if (mavenDep.getGroupId().equals("junit") || mavenDep.getGroupId().equals("com.google.code.findbugs")) {
             return;
         }
 
