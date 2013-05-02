@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import static com.google.common.collect.Lists.newArrayList;
+import java.io.IOException;
 
 public class MavenMetadataTest {
 
@@ -55,5 +56,14 @@ public class MavenMetadataTest {
         assertEquals("artifact.subartifact", metadata.getArtifactId());
         assertEquals("1.1", metadata.getLatestVersion());
         assertEquals(newArrayList("1.1", "1.0"), metadata.getVersions());
+    }
+
+    @Test(expected = IOException.class)
+    public void testQueryEmpty() throws Exception {
+        stubFor(get(urlEqualTo("/select?q=g:%22group.subgroup%22+AND+a:%22artifact.subartifact%22&core=gav&wt=xml")).willReturn(aResponse().withStatus(200).
+                withBody("<response><lst name=\"responseHeader\"></lst><result name=\"response\">"
+                + "</result></response>")));
+
+        MavenMetadata.query(new URL("http://localhost:8089/"), "group/subgroup/artifact.subartifact");
     }
 }

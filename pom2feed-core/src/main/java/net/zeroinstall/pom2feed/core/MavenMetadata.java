@@ -121,6 +121,9 @@ public class MavenMetadata {
         for (int i = 0; i < versionNodes.getLength(); i++) {
             versions.add(versionNodes.item(i).getNodeValue());
         }
+        if (versions.isEmpty()) {
+            throw new IOException("Unknown artifact ID");
+        }
         String latestVersion = versions.get(0);
 
         return new MavenMetadata(groupId, artifactId, latestVersion, versions);
