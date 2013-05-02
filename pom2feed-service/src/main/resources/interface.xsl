@@ -146,20 +146,20 @@ http://creativecommons.org/licenses/by-sa/2.5/
 												<xsl:if test='//zi:implementation'>
 													<table cellpadding="0" cellspacing="0">
 														<tr>
-															<th>Version</th>
-															<th>Platform</th>
+															<th>Maven Version</th>
+															<th>Zero Install Version</th>
 															<th>Download</th>
 														</tr>
 														<xsl:for-each select="//zi:implementation">
 															<tr>
 																<td>
+																	<xsl:value-of select="@id"/>
+																</td>
+																<td>
 																	<xsl:value-of select="(ancestor-or-self::*[@version])[last()]/@version"/>
 																	<xsl:if test="(ancestor-or-self::*[@version])[last()]/@version-modifier">
 																		<xsl:value-of select="(ancestor-or-self::*[@version])[last()]/@version-modifier"/>
 																	</xsl:if>
-																</td>
-																<td>
-																	Java
 																</td>
 																<td>
 																	<xsl:for-each select=".//zi:file"><a href="{@href}">Download</a> (<xsl:value-of select="@size"/> bytes)
