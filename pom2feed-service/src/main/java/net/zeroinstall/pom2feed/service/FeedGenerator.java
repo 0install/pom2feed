@@ -67,7 +67,7 @@ public class FeedGenerator implements FeedProvider {
 
     private MavenMetadata getMetadata(String artifactPath) throws IOException, SAXException, XPathExpressionException {
         if (mavenRepository.getHost().equals("repo.maven.apache.org")) {
-            return MavenMetadata.performQuery(new URL("http://search.maven.org/solrsearch/"), artifactPath);
+            return MavenMetadata.query(new URL("http://search.maven.org/solrsearch/"), artifactPath);
         } else {
             return MavenMetadata.load(new URL(mavenRepository, artifactPath + "maven-metadata.xml"));
         }

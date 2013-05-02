@@ -104,7 +104,7 @@ public class MavenMetadata {
      * @throws IOException Download of the query data failed.
      * @throws SAXException Parsing of the query data failed.
      */
-    public static MavenMetadata performQuery(URL queryService, String artifactPath) throws IOException, SAXException, XPathExpressionException {
+    public static MavenMetadata query(URL queryService, String artifactPath) throws IOException, SAXException, XPathExpressionException {
         String[] parts = artifactPath.split("/");
         String groupId = Joiner.on(".").join(Arrays.copyOfRange(parts, 0, parts.length - 1));
         String artifactId = parts[parts.length - 1];
@@ -121,7 +121,7 @@ public class MavenMetadata {
         for (int i = 0; i < versionNodes.getLength(); i++) {
             versions.add(versionNodes.item(i).getNodeValue());
         }
-        String latestVersion = versions.get(versions.size() - 1);
+        String latestVersion = versions.get(0);
 
         return new MavenMetadata(groupId, artifactId, latestVersion, versions);
     }
