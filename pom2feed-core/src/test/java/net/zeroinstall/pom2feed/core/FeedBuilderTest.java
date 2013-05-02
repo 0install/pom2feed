@@ -82,16 +82,30 @@ public class FeedBuilderTest {
         model.setPackaging("jar");
         model.setVersion("1.0");
 
-        org.apache.maven.model.Dependency dependency = new org.apache.maven.model.Dependency();
-        dependency.setGroupId("dependency-group");
-        dependency.setArtifactId("dependency-artifact1");
-        dependency.setVersion("[2.0,3.0)");
-        dependency.setScope("compile");
-        model.addDependency(dependency);
+        org.apache.maven.model.Dependency compileDependency = new org.apache.maven.model.Dependency();
+        compileDependency.setGroupId("dependency-group");
+        compileDependency.setArtifactId("dependency-artifact-compile");
+        compileDependency.setVersion("[2.0,3.0)");
+        compileDependency.setScope("compile");
+        model.addDependency(compileDependency);
+
+        org.apache.maven.model.Dependency providedDependency = new org.apache.maven.model.Dependency();
+        providedDependency.setGroupId("dependency-group");
+        providedDependency.setArtifactId("dependency-artifact-provided");
+        providedDependency.setVersion("[2.0,3.0)");
+        providedDependency.setScope("provided");
+        model.addDependency(providedDependency);
+
+        org.apache.maven.model.Dependency runtimeDependency = new org.apache.maven.model.Dependency();
+        runtimeDependency.setGroupId("dependency-group");
+        runtimeDependency.setArtifactId("dependency-artifact-runtime");
+        runtimeDependency.setVersion("[2.0,3.0)");
+        runtimeDependency.setScope("runtime");
+        model.addDependency(runtimeDependency);
 
         org.apache.maven.model.Dependency testDependency = new org.apache.maven.model.Dependency();
         testDependency.setGroupId("dependency-group");
-        testDependency.setArtifactId("dependency-artifact2");
+        testDependency.setArtifactId("dependency-artifact-test");
         testDependency.setVersion("[2.0,3.0)");
         testDependency.setScope("test");
         model.addDependency(testDependency);
@@ -99,9 +113,11 @@ public class FeedBuilderTest {
         Implementation impl = builder.addLocalImplementation(model, "dir").
                 getDocument().getInterface().getImplementationArray(0);
 
-        assertEquals("http://maven.0install.net/dependency-group/dependency-artifact1/", impl.getRequiresArray(0).getInterface());
+        assertEquals("http://maven.0install.net/dependency-group/dependency-artifact-compile/", impl.getRequiresArray(0).getInterface());
         assertEquals("2.0..!3.0", impl.getRequiresArray(0).getVersion());
-        assertEquals(1, impl.getRequiresArray().length); // No requirement for test-only dependencies
+        assertEquals("http://maven.0install.net/dependency-group/dependency-artifact-runtime/", impl.getRequiresArray(1).getInterface());
+        assertEquals("2.0..!3.0", impl.getRequiresArray(1).getVersion());
+        assertEquals(2, impl.getRequiresArray().length); // No requirement for test-only dependencies
     }
 
     @Test
