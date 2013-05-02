@@ -139,7 +139,7 @@ public class FeedGenerator implements FeedProvider {
             return xmlText;
         }
 
-        String signature = base64().lowerCase().encode(GnuPG.detachSign(xmlText, gnuPGKey));
+        String signature = base64().encode(GnuPG.detachSign(xmlText, gnuPGKey));
         return xmlText + "<!-- Base64 Signature\n" + signature + "\n-->\n";
     }
 
