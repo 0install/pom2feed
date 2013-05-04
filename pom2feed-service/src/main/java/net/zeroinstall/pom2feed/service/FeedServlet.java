@@ -64,9 +64,9 @@ public class FeedServlet extends HttpServlet {
         } else if (path.endsWith(".gpg")) {
             respondGnuPGKey(resp);
         } else if (path.endsWith("/interface.xsl")) {
-            respondXSL(resp);
+            respond(resp, "text/xml", xslData);
         } else if (path.endsWith("/interface.css")) {
-            respondCSS(resp);
+            respond(resp, "text/css", cssData);
         } else {
             String artifactPath = path.substring(1);
             if (ArtifactUtils.validatePath(artifactPath)) {
@@ -94,20 +94,11 @@ public class FeedServlet extends HttpServlet {
     }
 
     /**
-     * Responds with an error page.
-     */
-    private void respondError(HttpServletResponse resp) throws IOException {
-        resp.sendError(400, "Not a valid Maven URL");
-    }
-
-    /**
      * Responds with a Zero Install feed.
      */
     private void respondFeed(HttpServletResponse resp, String artifactPath) throws IOException {
-        resp.setContentType("application/xml");
-        resp.setCharacterEncoding("UTF-8");
         try {
-            resp.getWriter().write(feedProvider.getFeed(artifactPath));
+            respond(resp, "application/xml", feedProvider.getFeed(artifactPath));
         } catch (IOException ex) {
             resp.sendError(404, "Not a valid Maven artifact");
         } catch (SAXException ex) {
@@ -128,26 +119,22 @@ public class FeedServlet extends HttpServlet {
             return;
         }
 
-        resp.setContentType("text/plain");
+        respond(resp, "text/plain", gpgKeyData);
+    }
+
+    private void respond(HttpServletResponse resp, String contentType, String data) throws IOException {
+        byte[] bytes = data.getBytes();
+
+        resp.setContentType(contentType);
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(gpgKeyData);
+        resp.setContentLength(bytes.length);
+        resp.getOutputStream().write(bytes);
     }
 
     /**
-     * Responds with an XSL stylesheet.
+     * Responds with an error page.
      */
-    private void respondXSL(HttpServletResponse resp) throws IOException {
-        resp.setContentType("text/xml");
-        resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(xslData);
-    }
-
-    /**
-     * Responds with a CSS stylesheet.
-     */
-    private void respondCSS(HttpServletResponse resp) throws IOException {
-        resp.setContentType("text/css");
-        resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(cssData);
+    private void respondError(HttpServletResponse resp) throws IOException {
+        resp.sendError(400, "Not a valid Maven URL");
     }
 }
