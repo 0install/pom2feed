@@ -21,16 +21,9 @@ import org.xml.sax.SAXException;
  */
 public class MavenMetadata {
 
-    private static final DocumentBuilder docBuilder;
     private static final XPathExpression groupIdPath, artifactIdPath, versionsPath, latestVersionPath, versionsQueryPath;
 
     static {
-        try {
-            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (ParserConfigurationException ex) {
-            throw propagate(ex);
-        }
-
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
             groupIdPath = xpath.compile("//groupId/text()");
@@ -79,7 +72,7 @@ public class MavenMetadata {
      * @throws SAXException Parsing of the metadata file failed.
      */
     public static MavenMetadata parse(InputStream stream) throws IOException, SAXException, XPathExpressionException {
-        Document doc = docBuilder.parse(stream);
+        Document doc = getDocumentBuilder().parse(stream);
 
         NodeList groupIdNodes = (NodeList) groupIdPath.evaluate(doc, XPathConstants.NODESET);
         String groupId = groupIdNodes.item(0).getNodeValue();
@@ -114,7 +107,7 @@ public class MavenMetadata {
                 + "a:%22" + encode(artifactId, "UTF-8") + "%22"
                 + "&core=gav&wt=xml");
         InputStream stream = url.openStream();
-        Document doc = docBuilder.parse(stream);
+        Document doc = getDocumentBuilder().parse(stream);
 
         NodeList versionNodes = (NodeList) versionsQueryPath.evaluate(doc, XPathConstants.NODESET);
         List<String> versions = new LinkedList<String>();
@@ -127,6 +120,14 @@ public class MavenMetadata {
         String latestVersion = versions.get(0);
 
         return new MavenMetadata(groupId, artifactId, latestVersion, versions);
+    }
+
+    private static DocumentBuilder getDocumentBuilder() {
+        try {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException ex) {
+            throw propagate(ex);
+        }
     }
 
     /**
