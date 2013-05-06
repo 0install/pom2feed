@@ -53,6 +53,8 @@ public class FeedBuilderTest {
         assertEquals("1.0", impl.getVersion());
         assertEquals("dir", impl.getLocalPath());
         assertEquals("artifact.jar", impl.getCommandArray(0).getPath());
+        assertEquals("CLASSPATH", impl.getEnvironmentArray(0).getName());
+        assertEquals("artifact.jar", impl.getEnvironmentArray(0).getInsert());
     }
 
     @Test
@@ -142,6 +144,8 @@ public class FeedBuilderTest {
         assertEquals("1.0", impl.getVersion());
         assertEquals(expectedDigest, impl.getManifestDigestArray(0).getSha1New());
         assertEquals("artifact-1.0.jar", impl.getCommandArray(0).getPath());
+        assertEquals("CLASSPATH", impl.getEnvironmentArray(0).getName());
+        assertEquals("artifact-1.0.jar", impl.getEnvironmentArray(0).getInsert());
     }
 
     @Test

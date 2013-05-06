@@ -127,9 +127,11 @@ public class FeedBuilder {
         Implementation implementation = addNewImplementation(model);
         addDependencies(implementation, model);
 
+        String fileName = getArtifactLocalFileName(model);
+        addClassPath(implementation, fileName);
         if (model.getPackaging().equals("jar")) {
             Command command = addNewCommand(implementation);
-            command.setPath(getArtifactLocalFileName(model));
+            command.setPath(fileName);
         }
         implementation.setLocalPath(checkNotNull(directory));
 
@@ -156,6 +158,7 @@ public class FeedBuilder {
         String fileName = getArtifactFileName(model.getArtifactId(), model.getVersion(), model.getPackaging());
 
         Implementation implementation = addNewImplementation(model);
+        addClassPath(implementation, fileName);
         addDependencies(implementation, model);
 
         ManifestDigest digest = implementation.addNewManifestDigest();
@@ -172,6 +175,12 @@ public class FeedBuilder {
         }
 
         return this;
+    }
+
+    private void addClassPath(Implementation implementation, String fileName) {
+        Environment classPath = implementation.addNewEnvironment();
+        classPath.setName("CLASSPATH");
+        classPath.setInsert(fileName);
     }
 
     /**
@@ -252,10 +261,6 @@ public class FeedBuilder {
         if ("true".equals(mavenDep.getOptional())) {
             ziDep.setImportance(Importance.RECOMMENDED);
         }
-
-        Environment environment = ziDep.addNewEnvironment();
-        environment.setName("CLASSPATH");
-        environment.setInsert(".");
     }
 
     private void addJavaDependency(Implementation implementation, String javaVersion) {
