@@ -261,6 +261,6 @@ public class FeedBuilder {
     private void addJavaDependency(Implementation implementation, String javaVersion) {
         net.zeroinstall.model.Dependency javaDep = implementation.addNewRequires();
         javaDep.setInterface("http://repo.roscidus.com/java/openjdk-jre");
-        javaDep.setVersion("..!" + javaVersion);
+        javaDep.setVersion(javaVersion + "..");
     }
 }
