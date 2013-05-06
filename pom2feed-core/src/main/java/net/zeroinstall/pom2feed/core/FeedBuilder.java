@@ -25,8 +25,19 @@ public class FeedBuilder {
      * The base URL of the pom2feed service used to provide dependencies.
      */
     private final URL pom2feedService;
+    /**
+     * The feed being built.
+     */
     private final InterfaceDocument document;
+    /**
+     * Shortcut to {@link InterfaceDocument#getInterface()}.
+     */
     private final Feed feed;
+    /**
+     * Indicates whether lax versioning (allowing newer versions to substitute
+     * older versions without explicit ranges) is used for dependencies.
+     */
+    private boolean laxDependencyVersions;
 
     /**
      * Creates feed builder for a new feed.
@@ -55,6 +66,15 @@ public class FeedBuilder {
         this.pom2feedService = checkNotNull(pom2feedService);
         this.document = checkNotNull(document);
         this.feed = (document.getInterface() != null) ? document.getInterface() : document.addNewInterface();
+    }
+
+    /**
+     * Enables use of lax versioning (allowing newer versions to substitute
+     * older versions without explicit ranges) for dependencies.
+     */
+    public FeedBuilder enableLaxDependencyVersions() {
+        laxDependencyVersions = true;
+        return this;
     }
 
     /**
@@ -224,7 +244,11 @@ public class FeedBuilder {
 
         net.zeroinstall.model.Dependency ziDep = implementation.addNewRequires();
         ziDep.setInterface(MavenUtils.getServiceUrl(pom2feedService, mavenDep.getGroupId(), mavenDep.getArtifactId()));
-        ziDep.setVersion(convertRange(mavenDep.getVersion()));
+        if (laxDependencyVersions && !isMavenRange(mavenDep.getVersion())) {
+            ziDep.setVersion(convertVersion(mavenDep.getVersion()) + "..");
+        } else {
+            ziDep.setVersion(convertRange(mavenDep.getVersion()));
+        }
         if ("true".equals(mavenDep.getOptional())) {
             ziDep.setImportance(Importance.RECOMMENDED);
         }

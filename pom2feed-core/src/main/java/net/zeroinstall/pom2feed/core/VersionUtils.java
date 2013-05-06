@@ -99,6 +99,14 @@ final class VersionUtils {
     }
 
     /**
+     * Determines whether a string might be a Maven version range.
+     */
+    public static boolean isMavenRange(String value) {
+        return value.contains("(") || value.contains(")")
+                || value.contains("[") || value.contains("]");
+    }
+
+    /**
      * Converts a Maven version range string into a Zero Install version range
      * string.
      */

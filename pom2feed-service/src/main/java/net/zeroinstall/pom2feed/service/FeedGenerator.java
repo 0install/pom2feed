@@ -74,7 +74,7 @@ public class FeedGenerator implements FeedProvider {
     }
 
     private InterfaceDocument buildFeed(MavenMetadata metadata) throws ModelBuildingException {
-        FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService);
+        FeedBuilder feedBuilder = new FeedBuilder(mavenRepository, pom2feedService).enableLaxDependencyVersions();
         addMetadataToFeed(metadata, feedBuilder);
         addImplementationsToFeed(metadata, feedBuilder);
 

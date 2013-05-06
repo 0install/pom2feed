@@ -193,4 +193,26 @@ public class FeedBuilderTest {
         verify(getRequestedFor(urlEqualTo("/group/artifact/1.0/artifact-1.0.war.sha1")));
         assertEquals(0, feed.getImplementationArray().length);
     }
+    
+    
+    @Test
+    public void testLaxVersions() {
+        Model model = new Model();
+        Build build = new Build();
+        model.setBuild(build);
+        build.setFinalName("artifact");
+        model.setPackaging("jar");
+        model.setVersion("1.0");
+
+        org.apache.maven.model.Dependency compileDependency = new org.apache.maven.model.Dependency();
+        compileDependency.setGroupId("dependency-group");
+        compileDependency.setArtifactId("dependency-artifact-compile");
+        compileDependency.setVersion("2.0");
+        compileDependency.setScope("compile");
+        model.addDependency(compileDependency);
+
+        Implementation impl = builder.enableLaxDependencyVersions().addLocalImplementation(model, "dir").
+                getDocument().getInterface().getImplementationArray(0);
+        assertEquals("2.0..", impl.getRequiresArray(0).getVersion());
+    }
 }
