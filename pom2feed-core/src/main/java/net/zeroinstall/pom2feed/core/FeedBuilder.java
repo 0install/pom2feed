@@ -210,11 +210,7 @@ public class FeedBuilder {
     private Command addNewCommand(Implementation implementation) {
         Command command = implementation.addNewCommand();
         command.setName("run");
-
-        Runner runner = command.addNewRunner();
-        runner.setInterface("http://repo.roscidus.com/java/openjdk-jre");
-        runner.addArg("-jar");
-
+        command.addNewRunner().setInterface("http://0install.de/feeds/jar-launcher.xml");
         return command;
     }
 
