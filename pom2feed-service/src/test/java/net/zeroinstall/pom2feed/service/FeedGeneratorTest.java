@@ -41,7 +41,6 @@ public class FeedGeneratorTest {
                 willReturn(aResponse().withStatus(200).withBody("123abc")));
         
         String xmlText = feedGenerator.getFeed("group/artifact/");
-        assertTrue(xmlText.startsWith("<?xml"));
         Feed feed = InterfaceDocument.Factory.parse(xmlText).getInterface();
 
         verify(getRequestedFor(urlEqualTo("/group/artifact/maven-metadata.xml")));

@@ -2,7 +2,8 @@ package net.zeroinstall.pom2feed.service;
 
 import java.net.URL;
 import org.junit.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import java.net.MalformedURLException;
 import net.zeroinstall.model.Feed;
 import net.zeroinstall.model.InterfaceDocument;
@@ -27,39 +28,39 @@ public class FeedGeneratorOnlineTest {
     @Test
     public void testAsm() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("asm/asm/")).getInterface();
-        assertEquals("ASM Core", feed.getNameArray(0));
+        assertThat("ASM Core", equalTo(feed.getNameArray(0)));
     }
 
     @Test
     public void testXom() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("xom/xom/")).getInterface();
-        assertEquals("XOM", feed.getNameArray(0));
+        assertThat("XOM", equalTo(feed.getNameArray(0)));
     }
 
     @Test
     public void testXmlResolver() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("xml-resolver/xml-resolver/")).getInterface();
-        assertTrue(feed.getImplementationArray().length > 0);
-        assertEquals("XML Commons Resolver Component", feed.getNameArray(0));
+        assertThat(feed.getImplementationArray().length, is(greaterThan(0)));
+        assertThat("XML Commons Resolver Component", equalTo(feed.getNameArray(0)));
     }
 
     @Test
     public void testApacheCommonsLang3() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("org/apache/commons/commons-lang3/")).getInterface();
-        assertEquals("Commons Lang", feed.getNameArray(0));
+        assertThat("Commons Lang", equalTo(feed.getNameArray(0)));
     }
 
     @Test
     public void testApacheLdapApi() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("org/apache/directory/api/api-ldap-model/")).getInterface();
-        assertTrue(feed.getImplementationArray().length > 0);
-        assertEquals("Apache Directory LDAP API Model", feed.getNameArray(0));
+        assertThat(feed.getImplementationArray().length, is(greaterThan(0)));
+        assertThat("Apache Directory LDAP API Model", equalTo(feed.getNameArray(0)));
     }
 
     @Test
     public void testGoogleGuava() throws Exception {
         Feed feed = InterfaceDocument.Factory.parse(feedGenerator.getFeed("com/google/guava/guava/")).getInterface();
-        assertTrue(feed.getImplementationArray().length > 0);
-        assertEquals("Guava: Google Core Libraries for Java", feed.getNameArray(0));
+        assertThat(feed.getImplementationArray().length, is(greaterThan(0)));
+        assertThat("Guava: Google Core Libraries for Java", equalTo(feed.getNameArray(0)));
     }
 }
