@@ -1,5 +1,6 @@
 package net.zeroinstall.pom2feed.service;
 
+import net.zeroinstall.publish.GnuPG;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.IOException;
 import java.io.PrintWriter;

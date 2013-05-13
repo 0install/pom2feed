@@ -1,11 +1,11 @@
 package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.io.BaseEncoding.base64;
 import java.io.IOException;
 import java.net.URL;
 import javax.xml.xpath.XPathExpressionException;
 import net.zeroinstall.model.InterfaceDocument;
+import static net.zeroinstall.publish.FeedUtils.getFeedString;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import net.zeroinstall.pom2feed.core.MavenMetadata;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
@@ -15,8 +15,6 @@ import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
 import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +58,7 @@ public class FeedGenerator implements FeedProvider {
     public String getFeed(final String artifactPath) throws IOException, SAXException, XPathExpressionException, ModelBuildingException {
         MavenMetadata metadata = getMetadata(artifactPath);
         InterfaceDocument feed = buildFeed(metadata);
-
-        addStylesheet(feed);
-        return signFeed(feedToXmlText(feed));
+        return getFeedString(feed, gnuPGKey);
     }
 
     private MavenMetadata getMetadata(String artifactPath) throws IOException, SAXException, XPathExpressionException {
@@ -121,27 +117,6 @@ public class FeedGenerator implements FeedProvider {
 
         ModelBuilder builder = new DefaultModelBuilderFactory().newInstance();
         return builder.build(request).getEffectiveModel();
-    }
-
-    private void addStylesheet(InterfaceDocument feed) {
-        XmlCursor cursor = feed.newCursor();
-        cursor.toNextToken();
-        cursor.insertProcInst("xml-stylesheet", "type='text/xsl' href='interface.xsl'");
-    }
-
-    private String feedToXmlText(InterfaceDocument feed) {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + feed.xmlText(new XmlOptions().setUseDefaultNamespace().setSavePrettyPrint());
-    }
-
-    private String signFeed(String xmlText) throws IOException {
-        xmlText += "\n";
-        if (gnuPGKey == null) {
-            return xmlText;
-        }
-
-        String signature = base64().encode(GnuPG.detachSign(xmlText, gnuPGKey));
-        return xmlText + "<!-- Base64 Signature\n" + signature + "\n-->\n";
     }
 
     private class RepositoryModelResolver implements ModelResolver {
