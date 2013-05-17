@@ -4,7 +4,6 @@ import net.zeroinstall.publish.GnuPG;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 import javax.servlet.ServletException;
@@ -40,7 +39,7 @@ public class FeedServlet extends HttpServlet {
      */
     private final FeedProvider feedProvider;
 
-    public FeedServlet() throws MalformedURLException, IOException {
+    public FeedServlet() throws IOException {
         // Load configuration from Java system properties
         this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
         URL mavenRepository = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));

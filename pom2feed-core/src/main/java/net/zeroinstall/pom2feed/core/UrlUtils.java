@@ -28,8 +28,7 @@ public final class UrlUtils {
     public static long getRemoteFileSize(URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("HEAD");
-        long size = connection.getContentLength();
-        return size;
+        return connection.getContentLength();
     }
 
     public static String getRemoteWord(URL url) throws IOException {

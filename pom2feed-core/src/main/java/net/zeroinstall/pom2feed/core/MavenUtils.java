@@ -43,7 +43,6 @@ public final class MavenUtils {
      * Returns the repository URL for a Maven artifact file.
      *
      * @param mavenRepository The base URL of the Maven repository.
-     * @param model The Maven model describing the artifact to get.
      * @param groupId The artifact ID.
      * @param artifactId The artifact ID.
      * @param version The artifact version.

@@ -91,9 +91,8 @@ final class VersionUtils {
         }
 
         long result = 0;
-        char[] chars = value.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            result = (result << 7) + (byte) chars[i];
+        for (char c : value.toCharArray()) {
+            result = (result << 7) + (byte) c;
         }
         return result;
     }
