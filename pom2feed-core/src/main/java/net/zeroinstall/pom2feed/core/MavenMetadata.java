@@ -74,16 +74,10 @@ public class MavenMetadata {
     public static MavenMetadata parse(InputStream stream) throws IOException, SAXException, XPathExpressionException {
         Document doc = getDocumentBuilder().parse(stream);
 
-        NodeList groupIdNodes = (NodeList) groupIdPath.evaluate(doc, XPathConstants.NODESET);
-        String groupId = groupIdNodes.item(0).getNodeValue();
-        NodeList artifactIdNodes = (NodeList) artifactIdPath.evaluate(doc, XPathConstants.NODESET);
-        String artifactId = artifactIdNodes.item(0).getNodeValue();
-        NodeList versionNodes = (NodeList) versionsPath.evaluate(doc, XPathConstants.NODESET);
-        List<String> versions = new LinkedList<String>();
-        for (int i = 0; i < versionNodes.getLength(); i++) {
-            versions.add(versionNodes.item(i).getNodeValue());
-        }
-        String latestVersion = (String) latestVersionPath.evaluate(doc, XPathConstants.STRING);
+        String groupId = getValue(doc, groupIdPath);
+        String artifactId = getValue(doc, artifactIdPath);
+        List<String> versions = getValueSet(doc, versionsPath);
+        String latestVersion = getValue(doc, latestVersionPath);
         if (isNullOrEmpty(latestVersion)) {
             latestVersion = versions.get(versions.size() - 1);
         }
@@ -109,17 +103,28 @@ public class MavenMetadata {
         InputStream stream = url.openStream();
         Document doc = getDocumentBuilder().parse(stream);
 
-        NodeList versionNodes = (NodeList) versionsQueryPath.evaluate(doc, XPathConstants.NODESET);
-        List<String> versions = new LinkedList<String>();
-        for (int i = 0; i < versionNodes.getLength(); i++) {
-            versions.add(versionNodes.item(i).getNodeValue());
-        }
+        List<String> versions = getValueSet(doc, versionsQueryPath);
         if (versions.isEmpty()) {
             throw new IOException("Unknown artifact ID");
         }
         String latestVersion = versions.get(0);
 
         return new MavenMetadata(groupId, artifactId, latestVersion, versions);
+    }
+
+    private static String getValue(Document doc, XPathExpression expression) throws XPathExpressionException, DOMException {
+        NodeList nodes = (NodeList) expression.evaluate(doc, XPathConstants.NODESET);
+        Node item = nodes.item(0);
+        return (item == null) ? null : item.getNodeValue();
+    }
+
+    private static List<String> getValueSet(Document doc, XPathExpression expression) throws XPathExpressionException, DOMException {
+        NodeList nodes = (NodeList) expression.evaluate(doc, XPathConstants.NODESET);
+        List<String> values = new LinkedList<String>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            values.add(nodes.item(i).getNodeValue());
+        }
+        return values;
     }
 
     private static DocumentBuilder getDocumentBuilder() {
