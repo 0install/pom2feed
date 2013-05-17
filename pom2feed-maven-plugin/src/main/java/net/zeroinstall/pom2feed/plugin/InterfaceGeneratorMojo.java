@@ -56,7 +56,9 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
      */
     private void ensureOutputDirectoryExists() throws MojoFailureException {
         if (!feedDirectory.exists()) {
-            feedDirectory.mkdirs();
+            if (!feedDirectory.mkdirs()) {
+                throw new MojoFailureException(String.format("\"The directory %s could not be created.\"", feedDirectory));
+            }
         }
         if (!feedDirectory.isDirectory()) {
             throw new MojoFailureException(String.format("\"%s is not a directory.\"", feedDirectory));

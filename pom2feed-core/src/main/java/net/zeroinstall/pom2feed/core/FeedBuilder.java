@@ -116,7 +116,7 @@ public class FeedBuilder {
      *
      * @param model The Maven model to extract the version and dependency
      * information from.
-     * @param directory The relative (Unix-stlye) path to the directory
+     * @param directory The relative (Unix-style) path to the directory
      * containing the implementation
      * @return The {@link FeedBuilder} instance for calling further methods in a
      * fluent fashion.

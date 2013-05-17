@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 /**
  * Utility class with helper methods for Maven artifacts.
  */
-public final class ArtifactUtils {
+final class ArtifactUtils {
 
     /**
      * A regular expression describing valid path parts.
