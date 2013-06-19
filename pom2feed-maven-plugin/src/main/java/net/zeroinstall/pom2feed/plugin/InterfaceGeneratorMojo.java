@@ -1,17 +1,19 @@
 package net.zeroinstall.pom2feed.plugin;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
+import static net.zeroinstall.publish.FeedUtils.getFeedString;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.xmlbeans.XmlOptionsBean;
 
 /**
  * Generates a basic {@link InterfaceDocument Zero Install Interface} using the
@@ -23,12 +25,6 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
 
     //<editor-fold defaultstate="collapsed" desc="statics">
     private final static String DOT_XML = ".xml";
-    private final static XmlOptionsBean XML_WRITE_OPTIONS = new XmlOptionsBean();
-
-    static {
-        XML_WRITE_OPTIONS.setUseDefaultNamespace();
-        XML_WRITE_OPTIONS.setSavePrettyPrint();
-    }
     //</editor-fold>
     //<editor-fold defaultstate="collapsed" desc="plugin parameters">
     @Parameter(defaultValue = "${project.build.directory}", property = "feedDirectory", required = true)
@@ -90,9 +86,10 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     private void saveInterfaceDocument(final InterfaceDocument interfaceToSave) throws MojoExecutionException {
         final File file = new File(feedDirectory, feedName + DOT_XML);
         try {
-            interfaceToSave.save(file, XML_WRITE_OPTIONS);
+            final String feedString = getFeedString(interfaceToSave, null);
+            Files.write(feedString, file, Charsets.UTF_8);
         } catch (final IOException exception) {
-            throw new MojoExecutionException(String.format("Couldn't write Zero Install feed to %s", file.toString()), exception);
+            throw new MojoExecutionException(String.format("Could not write Zero Install feed to %s", file.toString()), exception);
         }
     }
 }
