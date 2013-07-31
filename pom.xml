@@ -9,6 +9,7 @@
 
     <name>Zero Install Maven Integration</name>
     <url>http://code.google.com/p/zero-install-pom2feed/</url>
+    <description>Module container for pom2feed projects</description>
 
     <modules>
         <module>pom2feed-parent</module>
