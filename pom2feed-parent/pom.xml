@@ -43,7 +43,7 @@
         <dependency>
             <groupId>net.zeroinstall</groupId>
             <artifactId>zeroinstall-model</artifactId>
-            <version>2.1.0-post-SNAPSHOT</version>
+            <version>2.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
