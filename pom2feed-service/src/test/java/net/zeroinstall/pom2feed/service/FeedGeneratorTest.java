@@ -1,26 +1,23 @@
 package net.zeroinstall.pom2feed.service;
 
-import java.net.URL;
-import org.junit.*;
-import static org.junit.Assert.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.net.MalformedURLException;
+import java.net.URL;
 import net.zeroinstall.model.Feed;
 import net.zeroinstall.model.InterfaceDocument;
+import static org.junit.Assert.assertEquals;
+import org.junit.*;
 
 public class FeedGeneratorTest {
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8089);
+    public WireMockRule wireMockRule = new WireMockRule(63956);
     private FeedGenerator feedGenerator;
 
     @Before
     public void before() throws MalformedURLException {
-        this.feedGenerator = new FeedGenerator(
-                new URL("http://localhost:8089/"),
-                new URL("http://maven.0install.net/"),
-                null);
+        this.feedGenerator = new FeedGenerator(new URL("http://localhost:63956/"), new URL("http://maven.0install.net/"), null);
     }
 
     @Test
@@ -39,7 +36,7 @@ public class FeedGeneratorTest {
                 willReturn(aResponse().withStatus(200).withHeader("Content-Length", "1024")));
         stubFor(get(urlEqualTo("/group/artifact/1.1/artifact-1.1.jar.sha1")).
                 willReturn(aResponse().withStatus(200).withBody("123abc")));
-        
+
         String xmlText = feedGenerator.getFeed("group/artifact/");
         Feed feed = InterfaceDocument.Factory.parse(xmlText).getInterface();
 
