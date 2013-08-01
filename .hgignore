@@ -1,6 +1,6 @@
 syntax: glob
-*/target/
-*/main/webapp/META-INF/
+target/
+main/webapp/META-INF/
 \.orig\..*$
 \.orig$
 \.chg\..*$
