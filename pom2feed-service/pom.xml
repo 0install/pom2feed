@@ -4,14 +4,14 @@
     <parent>
         <groupId>net.zeroinstall.pom2feed</groupId>
         <artifactId>pom2feed-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../pom2feed-parent</relativePath>
     </parent>
 
     <groupId>net.zeroinstall.pom2feed</groupId>
     <artifactId>pom2feed-service</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Artifact Feed Provider</name>
     <url>http://code.google.com/p/zero-install-pom2feed/</url>
 

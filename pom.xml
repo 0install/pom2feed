@@ -10,7 +10,7 @@
     <groupId>net.zeroinstall.pom2feed</groupId>
     <artifactId>pom2feed</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>Zero Install Maven Integration</name>
     <url>http://code.google.com/p/zero-install-pom2feed/</url>
