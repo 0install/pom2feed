@@ -13,27 +13,19 @@
     <version>1.0.1-SNAPSHOT</version>
 
     <name>Zero Install Maven Integration</name>
-    <url>http://code.google.com/p/zero-install-pom2feed/</url>
     <description>Module container for pom2feed projects</description>
-
-    <modules>
-        <module>pom2feed-parent</module>
-        <module>pom2feed-core</module>
-        <module>pom2feed-maven-plugin</module>
-        <module>pom2feed-service</module>
-    </modules>
-    
+    <url>https://github.com/0install/pom2feed</url>
     <licenses>
         <license>
             <name>GNU Lesser General Public License, Version 3.0</name>
             <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
         </license>
     </licenses>
-    
+
     <scm>
-        <url>https://code.google.com/p/zero-install-pom2feed/</url>
-        <connection>scm:hg:https://code.google.com/p/zero-install-pom2feed/</connection>
-        <developerConnection>scm:hg:https://code.google.com/p/zero-install-pom2feed/</developerConnection>
+        <connection>scm:git:https://github.com/0install/pom2feed.git</connection>
+        <developerConnection>scm:git:git@github.com:0install/pom2feed.git</developerConnection>
+        <url>https://github.com/0install/pom2feed</url>
     </scm>
     <developers>
         <developer>
@@ -44,5 +36,12 @@
             <name>Simon E. Silva Lauinger</name>
             <email>simon@silvalauinger.de</email>
         </developer>
-    </developers>    
+    </developers>
+
+    <modules>
+        <module>pom2feed-parent</module>
+        <module>pom2feed-core</module>
+        <module>pom2feed-maven-plugin</module>
+        <module>pom2feed-service</module>
+    </modules>
 </project>
