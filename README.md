@@ -2,8 +2,14 @@
 The Zero Install Maven Integration connects the world of Zero Install with [Apache Maven](https://maven.apache.org/). With this project Zero Install gets access to the huge number of Java projects available at [Maven Central](https://search.maven.org/). This is made possible by two components: the ```pom2feed-service``` and the ```pom2feed-maven-plugin```.
 
 #pom2feed-service
-The ```pom2feed-service``` is a [Java Servlet](https://en.wikipedia.org/wiki/Java_Servlet) which transparently maps the [POMs](https://maven.apache.org/pom.html) from Maven Central to [Zero Install feeds](http://0install.net/interface-spec.html) and provides them via a web service. The converted feeds contain everything (dependencies, version numbers, startup information, ...) needed to include them in your own Java project as a library or to launch a Java program through Zero Install.
-An instance of the pom2feed-service is hosted at http://maven.0install.net/. Have a look at the [Google Guava feed](http://maven.0install.net/com/google/guava/guava/) for an example.
+The ```pom2feed-service``` is a [Java Servlet](http://en.wikipedia.org/wiki/Java_Servlet) which transparently maps the [POMs](https://maven.apache.org/pom.html) from Maven Central to [Zero Install feeds](http://0install.net/interface-spec.html) and provides them via a web service. The converted feeds contain everything (dependencies, version numbers, startup information, ...) needed to include them in your own Java project as a library or to launch a Java program through Zero Install.
+
+You can use [Java system properties](http://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html) to configure the service:
+* ```pom2feed-service.serviceURL``` (MUST set to URL where service is hosted)
+* ```pom2feed-service.mavenRepository``` (MAY set to alternative Maven repository)
+* ```pom2feed-service.gnuPGKey``` (MUST set to ID of GnuPG signing key)
+
+An instance of the pom2feed-service is hosted at http://maven.0install.net/. Have a look at the (automatically generated) [Google Guava feed](http://maven.0install.net/com/google/guava/guava/) for an example.
 
 #pom2feed-maven-plugin
 To comfortably create Zero Install feeds for your own Maven project you can use the ```pom2feed-maven-plugin```. This will convert your Maven dependencies to Zero Install dependencies (pointing to the ```pom2feed-service```) so you can deploy your application without having to include or host the dependencies yourself. To do this you have two options: include ```pom2feed-maven-plugin``` in your POM or invoke it from the command-line.
