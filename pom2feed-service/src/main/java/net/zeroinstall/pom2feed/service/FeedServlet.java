@@ -10,6 +10,7 @@ import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import static net.zeroinstall.publish.FeedUtils.readAll;
 import net.zeroinstall.publish.GnuPG;
 import org.apache.maven.model.building.ModelBuildingException;
+import org.slf4j.*;
 import org.xml.sax.SAXException;
 
 /**
@@ -18,6 +19,7 @@ import org.xml.sax.SAXException;
 public class FeedServlet
         extends HttpServlet {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(FeedGenerator.class);
     /**
      * The URL of this service/servlet.
      */
@@ -43,15 +45,22 @@ public class FeedServlet
         // Load configuration from Java system properties
         this.serviceURL = ensureSlashEnd(new URL(
                 System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
+        LOGGER.info("pom2feed-service.serviceURL=" + serviceURL);
         URL mavenRepository = ensureSlashEnd(new URL(
                 System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
+        LOGGER.info("pom2feed-service.mavenRepository=" + mavenRepository);
         String gnuPGKey =
                 System.getProperty("pom2feed-service.gnuPGKey", null);
+        LOGGER.info("pom2feed-service.gnuPGKey=" + gnuPGKey);
 
         // Load files into memory
         this.gpgKeyData = isNullOrEmpty(gnuPGKey) ? null : GnuPG.getPublicKey(gnuPGKey);
+        if (isNullOrEmpty(gpgKeyData)) {
+            LOGGER.warn("No GnuPG key data loaded!");
+        }
         this.xslData = readAll(FeedServlet.class.getResourceAsStream("/interface.xsl"));
         this.cssData = readAll(FeedServlet.class.getResourceAsStream("/interface.css"));
+
 
         this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }
