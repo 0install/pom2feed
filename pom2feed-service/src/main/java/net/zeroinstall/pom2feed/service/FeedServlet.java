@@ -1,22 +1,22 @@
 package net.zeroinstall.pom2feed.service;
 
-import net.zeroinstall.publish.GnuPG;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
-import java.util.Scanner;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.xml.xpath.XPathExpressionException;
 import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
+import static net.zeroinstall.publish.FeedUtils.readAll;
+import net.zeroinstall.publish.GnuPG;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.xml.sax.SAXException;
 
 /**
  * Responds to HTTP requests and returns Zero Install feeds.
  */
-public class FeedServlet extends HttpServlet {
+public class FeedServlet
+        extends HttpServlet {
 
     /**
      * The URL of this service/servlet.
@@ -41,14 +41,17 @@ public class FeedServlet extends HttpServlet {
 
     public FeedServlet() throws IOException {
         // Load configuration from Java system properties
-        this.serviceURL = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
-        URL mavenRepository = ensureSlashEnd(new URL(System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
-        String gnuPGKey = System.getProperty("pom2feed-service.gnuPGKey", null);
+        this.serviceURL = ensureSlashEnd(new URL(
+                System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
+        URL mavenRepository = ensureSlashEnd(new URL(
+                System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
+        String gnuPGKey =
+                System.getProperty("pom2feed-service.gnuPGKey", null);
 
         // Load files into memory
         this.gpgKeyData = isNullOrEmpty(gnuPGKey) ? null : GnuPG.getPublicKey(gnuPGKey);
-        this.xslData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.xsl")).useDelimiter("\\A").next();
-        this.cssData = new Scanner(FeedServlet.class.getResourceAsStream("/interface.css")).useDelimiter("\\A").next();
+        this.xslData = readAll(FeedServlet.class.getResourceAsStream("/interface.xsl"));
+        this.cssData = readAll(FeedServlet.class.getResourceAsStream("/interface.css"));
 
         this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }
