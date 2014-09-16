@@ -3,12 +3,12 @@ package net.zeroinstall.pom2feed.service;
 import static com.google.common.collect.Lists.newArrayList;
 import java.util.Collection;
 import static net.zeroinstall.pom2feed.service.ArtifactUtils.*;
-import org.junit.*;
-import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import static org.junit.runners.Parameterized.Parameters;
+import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class ArtifactUtilsTest {
@@ -28,11 +28,11 @@ public class ArtifactUtilsTest {
         }, new Object[]{
             "artifact", false
         }, new Object[]{
-            "group.sub/artifact/", false
-        }, new Object[]{
             "/group/artifact/", false
         }, new Object[]{
             "group/artifact/", true
+        }, new Object[]{
+            "group/artifact.name/", true
         });
     }
 

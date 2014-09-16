@@ -11,7 +11,7 @@ final class ArtifactUtils {
     /**
      * A regular expression describing valid path parts.
      */
-    private static final Pattern pathPartPattern = Pattern.compile("^[A-Za-z0-9_-]+$");
+    private static final Pattern pathPartPattern = Pattern.compile("^[A-Za-z0-9._-]+$");
 
     private ArtifactUtils() {
     }
@@ -35,7 +35,7 @@ final class ArtifactUtils {
             return false;
         }
 
-        // Must only contain characters valid for Maven IDs minus the dot (.)
+        // Must only contain characters valid for Maven IDs
         for (String part : parts) {
             if (!pathPartPattern.matcher(part).matches()) {
                 return false;
