@@ -124,12 +124,22 @@ public class FeedGenerator implements FeedProvider {
         }
 
         @Override
-        public void addRepository(Repository repository) throws InvalidRepositoryException {
+        public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
+            return new UrlModelSource(getArtifactFileUrl(mavenRepository,
+                    parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "pom"));
+        }
+
+        @Override
+        public void addRepository(Repository repository) {
+        }
+
+        @Override
+        public void addRepository(Repository rpstr, boolean bln) {
         }
 
         @Override
         public ModelResolver newCopy() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return new RepositoryModelResolver();
         }
     }
 }
