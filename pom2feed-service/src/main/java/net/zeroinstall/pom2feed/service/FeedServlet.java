@@ -2,6 +2,7 @@ package net.zeroinstall.pom2feed.service;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.*;
+import static java.lang.System.getProperty;
 import java.net.URL;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
@@ -43,14 +44,11 @@ public class FeedServlet
 
     public FeedServlet() throws IOException {
         // Load configuration from Java system properties
-        this.serviceURL = ensureSlashEnd(new URL(
-                System.getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
+        this.serviceURL = ensureSlashEnd(new URL(getProperty("pom2feed-service.serviceURL", "http://maven.0install.net/")));
         LOGGER.info("pom2feed-service.serviceURL=" + serviceURL);
-        URL mavenRepository = ensureSlashEnd(new URL(
-                System.getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
+        URL mavenRepository = ensureSlashEnd(new URL(getProperty("pom2feed-service.mavenRepository", "http://repo.maven.apache.org/maven2/")));
         LOGGER.info("pom2feed-service.mavenRepository=" + mavenRepository);
-        String gnuPGKey =
-                System.getProperty("pom2feed-service.gnuPGKey", null);
+        String gnuPGKey = getProperty("pom2feed-service.gnuPGKey", null);
         LOGGER.info("pom2feed-service.gnuPGKey=" + gnuPGKey);
 
         // Load files into memory
@@ -60,7 +58,6 @@ public class FeedServlet
         }
         this.xslData = readAll(FeedServlet.class.getResourceAsStream("/interface.xsl"));
         this.cssData = readAll(FeedServlet.class.getResourceAsStream("/interface.css"));
-
 
         this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }

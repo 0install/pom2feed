@@ -5,11 +5,11 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import java.io.IOException;
 import java.net.URL;
 import net.zeroinstall.model.*;
-import org.apache.maven.model.*;
-import static net.zeroinstall.pom2feed.core.VersionUtils.*;
 import static net.zeroinstall.pom2feed.core.ManifestUtils.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
+import static net.zeroinstall.pom2feed.core.VersionUtils.*;
+import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**

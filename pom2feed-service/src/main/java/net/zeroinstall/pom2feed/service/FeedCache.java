@@ -4,8 +4,7 @@ import static com.google.common.base.Throwables.*;
 import com.google.common.cache.*;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.xml.sax.SAXException;
 
@@ -21,12 +20,12 @@ public class FeedCache implements FeedProvider {
                 .maximumSize(1000)
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(
-                new CacheLoader<String, String>() {
-            @Override
-            public String load(String key) throws Exception {
-                return backingProvider.getFeed(key);
-            }
-        });
+                        new CacheLoader<String, String>() {
+                            @Override
+                            public String load(String key) throws Exception {
+                                return backingProvider.getFeed(key);
+                            }
+                        });
     }
 
     @Override
