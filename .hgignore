@@ -1,3 +1,0 @@
-syntax: glob
-target/
-pom2feed-service/src/main/webapp/META-INF/

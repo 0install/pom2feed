@@ -1,2 +1,7 @@
 target/
 pom2feed-service/src/main/webapp/META-INF/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
