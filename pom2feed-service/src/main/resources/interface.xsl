@@ -16,13 +16,10 @@ http://creativecommons.org/licenses/by-sa/2.5/
 				<title>
 					<xsl:value-of select="zi:name"/>
 				</title>
-				<link rel="stylesheet" type="text/css" href='interface.css'/>
+				<link rel="stylesheet" type="text/css" href='feed.css'/>
 			</head>
 			<body>
 				<div class="site">
-					<div class="title"> 
-						<a href="http://maven.0install.net/">maven.0install.net</a>
-					</div>
 					<div class="main">
 						<div class="content">
 							<div class="post inner">

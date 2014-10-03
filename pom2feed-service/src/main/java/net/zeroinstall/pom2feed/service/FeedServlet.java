@@ -56,8 +56,8 @@ public class FeedServlet
         if (isNullOrEmpty(gpgKeyData)) {
             LOGGER.warn("No GnuPG key data loaded!");
         }
-        this.xslData = readAll(FeedServlet.class.getResourceAsStream("/interface.xsl"));
-        this.cssData = readAll(FeedServlet.class.getResourceAsStream("/interface.css"));
+        this.xslData = readAll(FeedServlet.class.getResourceAsStream("/feed.xsl"));
+        this.cssData = readAll(FeedServlet.class.getResourceAsStream("/feed.css"));
 
         this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }
@@ -72,9 +72,9 @@ public class FeedServlet
             respondWelcome(resp);
         } else if (path.endsWith(".gpg")) {
             respondGnuPGKey(resp);
-        } else if (path.endsWith("/interface.xsl")) {
+        } else if (path.endsWith("/feed.xsl")) {
             respond(resp, "text/xml", xslData);
-        } else if (path.endsWith("/interface.css")) {
+        } else if (path.endsWith("/feed.css")) {
             respond(resp, "text/css", cssData);
         } else {
             String artifactPath = path.substring(1);
