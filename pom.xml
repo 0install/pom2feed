@@ -1,42 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <groupId>net.zeroinstall.pom2feed</groupId>
     <artifactId>pom2feed</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1-SNAPSHOT</version>
-
-    <name>Zero Install Maven Integration</name>
+    <version>1.1-SNAPSHOT</version>
     <description>Module container for pom2feed projects</description>
-    <url>https://github.com/0install/pom2feed</url>
-    <licenses>
-        <license>
-            <name>GNU Lesser General Public License, Version 3.0</name>
-            <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:git:https://github.com/0install/pom2feed.git</connection>
-        <developerConnection>scm:git:git@github.com:0install/pom2feed.git</developerConnection>
-        <url>https://github.com/0install/pom2feed</url>
-    </scm>
-    <developers>
-        <developer>
-            <name>Bastian Eicher</name>
-            <email>bastian@eicher.net</email>
-        </developer>
-        <developer>
-            <name>Simon E. Silva Lauinger</name>
-            <email>simon@silvalauinger.de</email>
-        </developer>
-    </developers>
 
     <modules>
         <module>pom2feed-parent</module>
@@ -44,4 +13,18 @@
         <module>pom2feed-maven-plugin</module>
         <module>pom2feed-service</module>
     </modules>
+
+    <build>
+        <plugins>
+            <!-- Do not deploy aggregator POM to repository -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

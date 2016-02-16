@@ -4,16 +4,11 @@
     <parent>
         <groupId>net.zeroinstall.pom2feed</groupId>
         <artifactId>pom2feed-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
         <relativePath>../pom2feed-parent</relativePath>
     </parent>
-
-    <groupId>net.zeroinstall.pom2feed</groupId>
     <artifactId>pom2feed-service</artifactId>
     <packaging>war</packaging>
-    <version>1.0.1-SNAPSHOT</version>
-    <name>Artifact Feed Provider</name>
-    <url>http://code.google.com/p/zero-install-pom2feed/</url>
 
     <properties>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
@@ -43,7 +38,7 @@
         <dependency>
             <groupId>net.zeroinstall.pom2feed</groupId>
             <artifactId>pom2feed-core</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>${pom2feed.version}</version>
         </dependency>
     </dependencies>
 </project>
