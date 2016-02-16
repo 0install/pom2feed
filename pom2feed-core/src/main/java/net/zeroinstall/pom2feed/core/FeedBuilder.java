@@ -57,6 +57,8 @@ public class FeedBuilder {
     /**
      * Creates a feed builder an existing feed.
      *
+     * @param mavenRepository The base URL of the Maven repository used to
+     * provide binaries.
      * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies.
      * @param document The existing feed document.
@@ -71,6 +73,9 @@ public class FeedBuilder {
     /**
      * Enables use of lax versioning (allowing newer versions to substitute
      * older versions without explicit ranges) for dependencies.
+     *
+     * @return The {@link FeedBuilder} instance for calling further methods in a
+     * fluent fashion.
      */
     public FeedBuilder enableLaxDependencyVersions() {
         laxDependencyVersions = true;
