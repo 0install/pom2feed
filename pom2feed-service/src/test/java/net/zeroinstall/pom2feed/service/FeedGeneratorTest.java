@@ -1,13 +1,15 @@
 package net.zeroinstall.pom2feed.service;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.net.MalformedURLException;
 import java.net.URL;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import static org.mockito.Mockito.*;
+import org.junit.*;
+import static org.junit.Assert.assertEquals;
 import net.zeroinstall.model.Feed;
 import net.zeroinstall.model.InterfaceDocument;
-import static org.junit.Assert.assertEquals;
-import org.junit.*;
+import net.zeroinstall.publish.OpenPgp;
 
 public class FeedGeneratorTest {
 
@@ -17,7 +19,10 @@ public class FeedGeneratorTest {
 
     @Before
     public void before() throws MalformedURLException {
-        this.feedGenerator = new FeedGenerator(new URL("http://localhost:63956/"), new URL("http://maven.0install.net/"), null);
+        this.feedGenerator = new FeedGenerator(mock(OpenPgp.class),
+                new URL("http://localhost:63956/"),
+                new URL("http://maven.0install.net/"),
+                null);
     }
 
     @Test
