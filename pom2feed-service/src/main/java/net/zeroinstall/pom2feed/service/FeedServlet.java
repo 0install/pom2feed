@@ -115,7 +115,7 @@ public class FeedServlet
         } catch (XPathExpressionException ex) {
             resp.sendError(500, "Maven versioning metadata invalid");
         } catch (ModelBuildingException ex) {
-            resp.sendError(500, "Maven project metadata invalid");
+            resp.sendError(500, "Maven project metadata invalid: " + ex.getMessage());
         }
     }
 

@@ -108,8 +108,8 @@ public class FeedGenerator implements FeedProvider {
                 .setModelSource(modelSource)
                 .setModelResolver(new RepositoryModelResolver())
                 .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL)
-                // HACK: Workaround for broken Apache Commons POM
-                .setInactiveProfileIds(newArrayList("java-1.5-detected"));
+                // HACK: Workaround for "Failed to determine Java version for profile XYZ"
+                .setInactiveProfileIds(newArrayList("java-1.5-detected", "jdk7", "jdk8"));
 
         ModelBuilder builder = new DefaultModelBuilderFactory().newInstance();
         return builder.build(request).getEffectiveModel();
