@@ -215,7 +215,7 @@ public class FeedBuilder {
     private Command addNewCommand(Implementation implementation) {
         Command command = implementation.addNewCommand();
         command.setName("run");
-        command.addNewRunner().setInterface("http://0install.de/feeds/jar-launcher.xml");
+        command.addNewRunner().setInterface("http://repo.roscidus.com/java/jar-launcher");
         return command;
     }
 
