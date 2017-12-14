@@ -41,5 +41,3 @@ After executing ```mvn package``` at your Maven project root you can find the ge
 
 ##Generate feed from the command-line
 If you don't want to include the plugin in your POM, or you just want to try it out once, you can invoke the plugin from the command-line. Just run ```mvn net.zeroinstall.pom``` and the feed will be created in the ```target``` folder.
-
-An example of a feed generated for the project [Ldif Sort](https://bitbucket.org/nanobyte/ldif-sort) can be found [here](https://bitbucket.org/nanobyte/ldif-sort/src/tip/ldif-sort.xml).
