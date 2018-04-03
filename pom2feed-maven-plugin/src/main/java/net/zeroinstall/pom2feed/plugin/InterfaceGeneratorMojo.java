@@ -8,8 +8,6 @@ import java.net.URL;
 import net.zeroinstall.model.InterfaceDocument;
 import net.zeroinstall.pom2feed.core.FeedBuilder;
 import static net.zeroinstall.publish.FeedUtils.getFeedString;
-import net.zeroinstall.publish.GnuPG;
-import net.zeroinstall.publish.OpenPgp;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -37,14 +35,7 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     private URL mavenRepository;
     @Parameter(defaultValue = "http://maven.0install.net/", property = "pom2feedService", required = true)
     private URL pom2feedService;
-    @Parameter(property = "keySpecifier", required = false)
-    private String keySpecifier;
     //</editor-fold>
-
-    /**
-     * An encryption/signature system compatible with the OpenPGP standard.
-     */
-    private final OpenPgp openPgp = new GnuPG();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -95,7 +86,7 @@ public class InterfaceGeneratorMojo extends AbstractMojo {
     private void saveInterfaceDocument(final InterfaceDocument interfaceToSave) throws MojoExecutionException {
         final File file = new File(feedDirectory, feedName + DOT_XML);
         try {
-            final String feedString = getFeedString(openPgp, interfaceToSave, keySpecifier);
+            final String feedString = getFeedString(interfaceToSave, null);
             Files.write(feedString, file, Charsets.UTF_8);
         } catch (final IOException exception) {
             throw new MojoExecutionException(String.format("Could not write Zero Install feed to %s", file.toString()), exception);

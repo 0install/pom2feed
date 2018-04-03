@@ -9,7 +9,6 @@ import net.zeroinstall.pom2feed.core.*;
 import static net.zeroinstall.pom2feed.core.MavenUtils.*;
 import static net.zeroinstall.pom2feed.core.UrlUtils.*;
 import static net.zeroinstall.publish.FeedUtils.getFeedString;
-import net.zeroinstall.publish.OpenPgp;
 import org.apache.maven.model.*;
 import org.apache.maven.model.building.*;
 import org.apache.maven.model.resolution.*;
@@ -34,35 +33,28 @@ public class FeedGenerator implements FeedProvider {
     /**
      * The name of the key to use for GnuPG signing.
      */
-    private final String keySpecifier;
-    /**
-     * An encryption/signature system compatible with the OpenPGP standard.
-     */
-    private final OpenPgp openPgp;
+    private final String gnuPGKey;
 
     /**
      * Creates a feed generator.
      *
-     * @param openPgp An encryption/signature system compatible with the OpenPGP
-     * standard.
      * @param mavenRepository The base URL of the Maven repository used to
      * provide binaries.
      * @param pom2feedService The base URL of the pom2feed service used to
      * provide dependencies. This is usually the URL of this service itself.
-     * @param keySpecifier The name of the key to use for GnuPG signing.
+     * @param gnuPGKey The name of the key to use for GnuPG signing.
      */
-    public FeedGenerator(OpenPgp openPgp, URL mavenRepository, URL pom2feedService, String keySpecifier) {
-        this.openPgp = openPgp;
+    public FeedGenerator(URL mavenRepository, URL pom2feedService, String gnuPGKey) {
         this.mavenRepository = ensureSlashEnd(mavenRepository);
         this.pom2feedService = ensureSlashEnd(pom2feedService);
-        this.keySpecifier = keySpecifier;
+        this.gnuPGKey = gnuPGKey;
     }
 
     @Override
     public String getFeed(final String artifactPath) throws IOException, SAXException, XPathExpressionException, ModelBuildingException {
         MavenMetadata metadata = getMetadata(artifactPath);
         InterfaceDocument feed = buildFeed(metadata);
-        return getFeedString(openPgp, feed, keySpecifier);
+        return getFeedString(feed, gnuPGKey);
     }
 
     private MavenMetadata getMetadata(String artifactPath) throws IOException, SAXException, XPathExpressionException {

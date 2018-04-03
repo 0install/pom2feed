@@ -10,7 +10,6 @@ import javax.xml.xpath.XPathExpressionException;
 import static net.zeroinstall.pom2feed.core.UrlUtils.ensureSlashEnd;
 import static net.zeroinstall.publish.FeedUtils.readAll;
 import net.zeroinstall.publish.GnuPG;
-import net.zeroinstall.publish.OpenPgp;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.slf4j.*;
 import org.xml.sax.SAXException;
@@ -42,10 +41,6 @@ public class FeedServlet
      * Provides Zero Install feeds for specific Maven artifacts.
      */
     private final FeedProvider feedProvider;
-    /**
-     * An encryption/signature system compatible with the OpenPGP standard.
-     */
-    private final OpenPgp openPgp = new GnuPG();
 
     public FeedServlet() throws IOException {
         // Load configuration from Java system properties
@@ -57,14 +52,14 @@ public class FeedServlet
         LOGGER.info("pom2feed-service.gnuPGKey=" + gnuPGKey);
 
         // Load files into memory
-        this.gpgKeyData = isNullOrEmpty(gnuPGKey) ? null : openPgp.exportKey(gnuPGKey);
+        this.gpgKeyData = isNullOrEmpty(gnuPGKey) ? null : GnuPG.getPublicKey(gnuPGKey);
         if (isNullOrEmpty(gpgKeyData)) {
             LOGGER.warn("No GnuPG key data loaded!");
         }
         this.xslData = readAll(FeedServlet.class.getResourceAsStream("/feed.xsl"));
         this.cssData = readAll(FeedServlet.class.getResourceAsStream("/feed.css"));
 
-        this.feedProvider = new FeedCache(new FeedGenerator(openPgp, mavenRepository, serviceURL, gnuPGKey));
+        this.feedProvider = new FeedCache(new FeedGenerator(mavenRepository, serviceURL, gnuPGKey));
     }
 
     @Override
