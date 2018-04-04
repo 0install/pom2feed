@@ -10,6 +10,9 @@
     <artifactId>pom2feed-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
+    <name>pom2feed Maven Plugin</name>
+    <description>Maven plugin for generating Zero Install feeds. This will convert your Maven dependencies to Zero Install dependencies (pointing to the public instance of the pom2feed Service).</description>
+
     <build>
         <plugins>
             <plugin>

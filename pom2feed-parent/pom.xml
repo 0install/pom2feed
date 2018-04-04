@@ -6,6 +6,8 @@
     <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
 
+    <name>pom2feed</name>
+    <description>pom2feed connects the world of Zero Install with Apache Maven.</description>
     <url>https://github.com/0install/pom2feed</url>
     <licenses>
         <license>
@@ -13,6 +15,12 @@
             <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
         </license>
     </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/0install/pom2feed.git</connection>
+        <url>https://github.com/0install/pom2feed</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,22 +38,6 @@
                     <target>1.6</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>2.3.3</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                        <configuration>
-                            <download>true</download>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

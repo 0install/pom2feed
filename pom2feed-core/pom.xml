@@ -10,6 +10,9 @@
     <artifactId>pom2feed-core</artifactId>
     <packaging>jar</packaging>
 
+    <name>pom2feed Core</name>
+    <description>Common code shared between pom2feed Maven Plugin and Service.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>

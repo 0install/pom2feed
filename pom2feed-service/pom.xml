@@ -10,6 +10,9 @@
     <artifactId>pom2feed-service</artifactId>
     <packaging>war</packaging>
 
+    <name>pom2feed Service</name>
+    <description>Java Servlet that transparently maps the POMs from Maven Central to Zero Install feeds.</description>
+
     <properties>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
     </properties>
