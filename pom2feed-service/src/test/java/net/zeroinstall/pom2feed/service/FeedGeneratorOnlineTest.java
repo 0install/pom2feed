@@ -1,12 +1,14 @@
 package net.zeroinstall.pom2feed.service;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-import org.junit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import java.net.MalformedURLException;
+import static org.mockito.Mockito.*;
+import org.junit.*;
 import net.zeroinstall.model.Feed;
 import net.zeroinstall.model.InterfaceDocument;
+import net.zeroinstall.publish.OpenPgp;
 
 /**
  * Contains test cases run against live/online Maven repository to test special
@@ -19,7 +21,7 @@ public class FeedGeneratorOnlineTest {
 
     @Before
     public void before() throws MalformedURLException {
-        this.feedGenerator = new FeedGenerator(
+        this.feedGenerator = new FeedGenerator(mock(OpenPgp.class),
                 new URL("http://repo.maven.apache.org/maven2/"),
                 new URL("http://maven.0install.net/"),
                 null);
