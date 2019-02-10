@@ -2,9 +2,9 @@
 
 pom2feed connects the world of Zero Install with [Apache Maven](http://maven.apache.org/). With this project Zero Install gets access to the huge number of Java projects available at [Maven Central](http://search.maven.org/). This is made possible by two components: the pom2feed Service and the pom2feed Maven Plugin.
 
-CI Builds:  
-[![Windows](https://img.shields.io/appveyor/ci/0install/pom2feed.svg?label=Windows)](https://ci.appveyor.com/project/0install/pom2feed)
-[![Linux](https://img.shields.io/travis/0install/pom2feed.svg?label=Linux)](https://travis-ci.org/0install/pom2feed)
+[![Build status](https://img.shields.io/appveyor/ci/0install/pom2feed.svg)](https://ci.appveyor.com/project/0install/pom2feed)
+
+**Important:** [Lombok](https://projectlombok.org/), a build-time dependency, does not support Java 10 yet. However, the resulting artifact will work on Java 10.
 
 
 # pom2feed Service
