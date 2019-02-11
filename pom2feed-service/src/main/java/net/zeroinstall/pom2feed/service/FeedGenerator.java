@@ -125,8 +125,12 @@ public class FeedGenerator implements FeedProvider {
 
         @Override
         public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
-            return new UrlModelSource(getArtifactFileUrl(mavenRepository,
-                    parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "pom"));
+            return resolveModel(parent.getGroupId(), parent.getArtifactId(), parent.getVersion());
+        }
+
+        @Override
+        public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
+            return resolveModel(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
         }
 
         @Override
