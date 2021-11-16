@@ -1,6 +1,6 @@
 image:
-- Visual Studio 2017
-- Ubuntu
+- Visual Studio 2022
+- Ubuntu2004
 
 # Java 10+ not supported by Lombok
 stack: jdk 9
